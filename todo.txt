@@ -1,9 +1,10 @@
 TODO:
     - Environment (Hex, NIM)
-        HEX COMPLETE --> Needs visualizing
-        NIM NOT COMPLETE
-    - Constants
-    - MCTS
-    - Neural network
-    - Tournament
-    - 
+        - HEX (COMPLETE)
+            - Game logic implemented
+            - Basic visualizing implemented
+        - NIM (NOT STARTED)
+    - MCTS (NOT STARTED)
+    - Neural network (NOT STARTED)
+    - Tournament (NOT STARTED)
+    
