@@ -1,0 +1,7 @@
+TODO:
+    - Environment (Hex, NIM)
+    - Constants
+    - MCTS
+    - Neural network
+    - Tournament
+    - 
