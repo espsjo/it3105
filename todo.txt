@@ -1,5 +1,7 @@
 TODO:
     - Environment (Hex, NIM)
+        HEX COMPLETE --> Needs visualizing
+        NIM NOT COMPLETE
     - Constants
     - MCTS
     - Neural network
