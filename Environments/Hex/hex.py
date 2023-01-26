@@ -239,30 +239,3 @@ class Hex:
             dim1 = self.board_size*node[0]
             dim2 = node[1]
             return (dim1 + dim2)
-
-
-""" 
-Function for choosing random moves to simulate
-Returns bool
-"""
-
-
-def random_sim(max_moves, max_itr):
-    n = 0
-    while True:
-        h = Hex(board_size=5)
-        moves = 0
-        while not h.winner:
-            moves += 1
-            move = int(np.random.choice(h.get_legal_moves()))
-            h.play_move(move)
-        if moves < max_moves or n > max_itr:
-            print(
-                f"The winner was {h.winner} with the move {h.convert_node(move,isflattened=True)}")
-            print(h.state)
-            break
-        n += 1
-
-
-if __name__ == "__main__":
-    random_sim(max_moves=15, max_itr=100)
