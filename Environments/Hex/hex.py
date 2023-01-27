@@ -31,6 +31,9 @@ class Hex:
         # Variable for which player eventually wins. If != 0, the game should stop
         self.winner = 0
 
+        # Store the winning island
+        self.winning_island = None
+
         # Dictionary of disjoint sets belonging to each player
         self.nodesets = {1: [], 2: []}
 
@@ -60,9 +63,9 @@ class Hex:
             x_y = set([self.convert_node(flat_n, isflattened=True)[coord]
                       for flat_n in disj])
             if x_y == self.win_cond:
-                return True
+                return True, disj
 
-        return False
+        return False, None
 
     """ 
     Function for validating a move
@@ -71,7 +74,7 @@ class Hex:
 
     def check_valid_move(self, move):
 
-        if isinstance(move, int):
+        if not isinstance(move, tuple):
             return (move in self.legal_moves)
         else:
             return (self.convert_node(move, isflattened=False) in self.legal_moves)
@@ -90,7 +93,7 @@ class Hex:
         self.board_hist.append(deepcopy(self.state))
 
         new_state = self.state
-        flattened = isinstance(move, int)
+        flattened = not isinstance(move, tuple)
 
         if flattened:
             flat_move = move
@@ -110,7 +113,8 @@ class Hex:
         self.update_disjoint_sets(flat_move, self.player)
 
         # Check for win
-        if self.is_winning(self.player):
+        winning, self.winning_island = self.is_winning(self.player)
+        if winning:
             self.winner = self.player
             # Add the final state
             self.board_hist.append(deepcopy(self.state))
@@ -178,7 +182,7 @@ class Hex:
     """
 
     def get_neighbours(self, node, returnFlattened: bool):
-        if isinstance(node, int):
+        if not isinstance(node, tuple):
             node = self.convert_node(node, isflattened=True)
 
         r = node[0]
@@ -205,7 +209,7 @@ class Hex:
     """
 
     def update_disjoint_sets(self, move, player):
-        if not isinstance(move, int):
+        if isinstance(move, tuple):
             move = self.convert_node(move, isflattened=False)
 
         # Get neighbours of the move
