@@ -4,11 +4,12 @@ from .hex import Hex
 
 
 class HexGUI:
-    def __init__(self, Hex: Hex):
+    def __init__(self, Hex: Hex, ANIMATION_SPEED: float):
         self.Hex = Hex
         self.hist = self.Hex.board_hist
         self.winner = self.Hex.winner
         self.winning_island = self.Hex.winning_island
+        self.ANIMATION_SPEED = ANIMATION_SPEED
         self.visualize()
 
     def visualize(self):
@@ -34,7 +35,7 @@ class HexGUI:
                 ax.axis('off')
                 plt.axis('scaled')
 
-            plt.pause(0.25)
+            plt.pause(self.ANIMATION_SPEED)
         plt.title(f"The winner was {d[self.winner]} (player {self.winner}) ")
 
         for i, j in enumerate(self.hist[-1].flatten()):

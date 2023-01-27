@@ -9,7 +9,7 @@ def main():
     while not h.winner:
         move = int(np.random.choice(h.get_legal_moves()))
         h.play_move(move)
-    hv = HexGUI(h)
+    hv = HexGUI(h, ANIMATION_SPEED=Constants.ANIMATION_SPEED)
 
 
 if __name__ == '__main__':
