@@ -39,10 +39,10 @@ class HexGUI:
                     hex = RegularPolygon((x, y), numVertices=6, radius=1,
                                          orientation=np.radians(0),
                                          facecolor=colors[j], alpha=1, edgecolor='k')
+                    self.ax.add_patch(hex)
                 else:
                     l.append(RegularPolygon((x, y), numVertices=6, radius=1, orientation=np.radians(
                         0), facecolor=colors[j], alpha=1, edgecolor='darkorange', linewidth=4))
-                self.ax.add_patch(hex)
             for i in l:
                 self.ax.add_patch(i)
             self.ax.axis('off')
