@@ -1,5 +1,6 @@
 import numpy as np
 from copy import deepcopy
+from .hex_gui import HexGUI
 
 
 class Hex:
@@ -8,16 +9,18 @@ class Hex:
     Returns void
     """
 
-    def __init__(self, board_size):
-        self.board_size = board_size
-        self.reset_states(player_start=1)
+    def __init__(self, hex_config, visualize: bool):
+        self.board_size = hex_config["BOARD_SIZE"]
+        self.visualize = visualize
+        self.ANIMATION_SPEED = hex_config["ANIMATION_SPEED"]
+        self.reset_states(self.visualize, player_start=1)
 
     """  
     Reset state, and variables containing state information
     Returns void
     """
 
-    def reset_states(self, player_start):
+    def reset_states(self, visualize: bool, player_start):
 
         # Represented with 1 and 2
         self.player = player_start
@@ -42,6 +45,9 @@ class Hex:
 
         # Winning condition used in is_winning
         self.win_cond = set([i for i in range(self.board_size)])
+
+        if visualize:
+            self.hexgui = HexGUI(self, self.ANIMATION_SPEED)
 
     """ 
     Function for validating if a player has won the current game or not 
@@ -126,6 +132,8 @@ class Hex:
         else:
             self.player = 1
 
+        if self.visualize:
+            self.hexgui.visualize_move(self.state, self.winner, move)
         return True
 
     """  
