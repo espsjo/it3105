@@ -1,0 +1,130 @@
+import numpy as np
+
+
+class NIM:
+    """  
+    Initialise variables
+    Returns void
+    """
+
+    def __init__(self, nim_config, verbose: bool):
+        self.stones = nim_config["STONES"]
+        self.min_stones = nim_config["MIN_STONES"]
+        self.max_stones = nim_config["MAX_STONES"]
+        self.verbose = verbose
+        self.reset_states(self.verbose, player_start=1)
+
+    """
+    Resets the states
+    Returns void
+    """
+
+    def reset_states(self, verbose: bool, player_start):
+
+        # Update the verbose variable after reset
+        self.verbose = verbose
+
+        # Update the state to represent number of stones
+        self.state = self.stones
+
+        # Initialise player turn
+        self.player = player_start
+
+        # Variable for winner of game (0/1/2)
+        self.winner = 0
+
+        # History of states
+        self.board_hist = []
+
+        self.legal_moves = self.get_legal_moves()
+
+    """
+    Checks if a player has won
+    Returns bool
+    """
+
+    def is_winning(self):
+        return self.state == 0
+
+    """
+    Checks if a move is legal
+    Returns bool
+    """
+
+    def check_valid_move(self, move):
+        min_move = self.min_stones
+        max_move = min(self.max_stones, self.state)
+        return (min_move <= move <= max_move)
+
+    """
+    Amend the state based on the played move, given that it is legal
+    Returns bool
+    """
+
+    def play_move(self, move):
+        if self.winner != 0:
+            return False
+        if not self.check_valid_move(move):
+            return False
+
+        self.board_hist.append(self.state)
+
+        new_state = self.state
+
+        # Update state
+        new_state -= move
+        self.state = new_state
+
+        # Update legal moves
+        self.legal_moves = self.get_legal_moves()
+
+        # Check for win
+        if self.is_winning():
+            self.winner = self.player
+            self.board_hist.append(self.state)
+
+        # Update player turn
+        if self.player == 1:
+            self.player = 2
+        else:
+            self.player = 1
+
+    """
+    Finds every legal move, given the current state
+    Returns array
+    """
+
+    def get_legal_moves(self):
+        min_move = self.min_stones
+        max_move = min(self.max_stones, self.state)
+        return np.array([num for num in range(min_move, max_move+1)])
+
+    """  
+    Function for simulating a reward
+    Returns int
+    """
+
+    def get_reward(self, player):
+        if self.winner == 0:
+            return 0
+        if self.winner != player:
+            return -1
+        else:
+            return 1
+
+    """ 
+    Function for getting the current player
+    Returns int
+    """
+
+    def get_current_player(self):
+        return self.player
+
+    """ 
+    Function for getting the current state 
+    Does not have option to include turn, as it is unnecessary for the given game
+    Returns array
+    """
+
+    def get_state(self):
+        return self.state
