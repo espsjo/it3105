@@ -53,7 +53,7 @@ class Hex:
 
     """ 
     Function for validating if a player has won the current game or not 
-    Returns bool
+    Returns bool, set/Void 
     """
 
     def is_winning(self, player):
@@ -179,12 +179,17 @@ class Hex:
         return self.player
 
     """ 
-    Function for getting the current state 
+    Function for getting the current state, either flattened or matrix, with the option to include turn in both
     Returns array
     """
 
-    def get_state(self):
-        return self.state
+    def get_state(self, flatten: bool, include_turn: bool):
+        state = self.state
+        if flatten:
+            state = self.flatten_state(state, include_turn=include_turn)
+        elif include_turn:
+            state = state.insert(0, self.player)
+        return state
 
     """
     Function for getting the neighbours of a given "node"

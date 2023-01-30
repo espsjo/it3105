@@ -4,10 +4,20 @@ import numpy as np
 
 
 class HexGUI:
+    """ 
+    Initialises the class
+    Returns void
+    """
+
     def __init__(self, Hex, ANIMATION_SPEED: float):
         self.Hex = Hex
         self.ANIMATION_SPEED = ANIMATION_SPEED
         self.setup()
+
+    """ 
+    Sets up the GUI and som key variables
+    Returns void
+    """
 
     def setup(self):
         _, self.ax = plt.subplots(1)
@@ -15,6 +25,14 @@ class HexGUI:
         self.colors = {0: 'white', 1: 'red', 2: 'blue'}
         self.board = self.Hex.state
         self.visualize_move(self.board, False, False)
+
+    """ 
+    Function for visualsing the board after each move. Call to plt.show() depends on a player actually winning the game,
+    but this has been mathematically proven to always be the case.
+    Also highlights the "island" that proved winning for the player.
+    A little "hacky" for code, especially for the part where a player wins, but does the job for basic visualizing.
+    Returns void
+    """
 
     def visualize_move(self, board, won, move):
         if won:
