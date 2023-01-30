@@ -14,6 +14,7 @@ class Hex:
         self.visualize = visualize
         self.ANIMATION_SPEED = hex_config["ANIMATION_SPEED"]
         self.won_msg = hex_config["WON_MSG"]
+        self.hexgui = HexGUI(self, self.ANIMATION_SPEED)
         self.reset_states(self.visualize, player_start=1)
 
     """  
@@ -50,7 +51,8 @@ class Hex:
         self.visualize = visualize
 
         if self.visualize:
-            self.hexgui = HexGUI(self, self.ANIMATION_SPEED)
+            self.hexgui.reset()
+            self.hexgui.visualize_move(self.state, self.winner, None)
 
     """ 
     Function for validating if a player has won the current game or not 

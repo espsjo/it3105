@@ -9,9 +9,11 @@ def main():
     UI_ON = config["UI_ON"]
     if GAME == "hex":
         h = Hex(hex_config, visualize=UI_ON)
-        while not h.is_won():
-            move = int(np.random.choice(h.get_legal_moves()))
-            h.play_move(move)
+        for i in range(2):
+            while not h.is_won():
+                move = int(np.random.choice(h.get_legal_moves()))
+                h.play_move(move)
+            h.reset_states(visualize=True, player_start=1)
     if GAME == "nim":
         n = NIM(nim_config, verbose=UI_ON)
         while not n.is_won():

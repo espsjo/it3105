@@ -20,11 +20,13 @@ class HexGUI:
     """
 
     def setup(self):
-        _, self.ax = plt.subplots(1)
+        plt.ion()
+        self.fig, self.ax = plt.subplots(1)
         self.ax.set_aspect("equal")
         self.colors = {0: "white", 1: "red", 2: "blue"}
-        self.board = self.Hex.state
-        self.visualize_move(self.board, False, False)
+
+    def reset(self):
+        plt.cla()
 
     """ 
     Function for visualsing the board after each move. Call to plt.show() depends on a player actually winning the game,
@@ -35,6 +37,7 @@ class HexGUI:
     """
 
     def visualize_move(self, board, won, move):
+        self.board = board
         if won:
             winning_island = self.Hex.winning_island
             plt.title(f"The winner was {self.colors[won]} (player {won}) ")
@@ -80,7 +83,7 @@ class HexGUI:
                 self.ax.add_patch(i)
             self.ax.axis("off")
             plt.axis("scaled")
-            plt.pause(0.001)
+            plt.pause(3)
         else:
             for i, j in enumerate(self.board.flatten()):
                 colors = self.colors
@@ -107,5 +110,3 @@ class HexGUI:
             self.ax.axis("off")
             plt.axis("scaled")
             plt.pause(self.ANIMATION_SPEED)
-        if won:
-            plt.show()
