@@ -1,4 +1,5 @@
 import numpy as np
+import time
 
 
 class NIM:
@@ -11,6 +12,7 @@ class NIM:
         self.stones = nim_config["STONES"]
         self.min_stones = nim_config["MIN_STONES"]
         self.max_stones = nim_config["MAX_STONES"]
+        self.delay = nim_config["DELAY"]
         self.verbose = verbose
         self.won_msg = nim_config["WON_MSG" or self.verbose]
         self.reset_states(self.verbose, player_start=1)
@@ -106,6 +108,8 @@ Now, there are {new_state} stone(s) left."""
             self.player = 2
         else:
             self.player = 1
+
+        time.sleep(self.delay)
 
     """
     Finds every legal move, given the current state
