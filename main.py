@@ -13,7 +13,7 @@ def main():
             while not h.is_won():
                 move = int(np.random.choice(h.get_legal_moves()))
                 h.play_move(move)
-            h.reset_states(visualize=True, player_start=1)
+            h.reset_states(visualize=UI_ON, player_start=1)
     if GAME == "nim":
         n = NIM(nim_config, verbose=UI_ON)
         while not n.is_won():
