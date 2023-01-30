@@ -9,7 +9,7 @@ def main():
     UI_ON = config["UI_ON"]
     if GAME == "hex":
         h = Hex(hex_config, visualize=UI_ON)
-        for i in range(2):
+        for i in range(3):
             while not h.is_won():
                 move = int(np.random.choice(h.get_legal_moves()))
                 h.play_move(move)
@@ -17,7 +17,10 @@ def main():
     if GAME == "nim":
         n = NIM(nim_config, verbose=UI_ON)
         while not n.is_won():
-            move = int(np.random.choice(n.get_legal_moves()))
+            if n.get_current_player() == 2:
+                move = int(input(f"\nMove: "))
+            else:
+                move = int(np.random.choice(n.get_legal_moves()))
             n.play_move(move)
 
 
