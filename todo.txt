@@ -1,12 +1,13 @@
 TODO:
-    - Environment (Hex, NIM)
-        - HEX (COMPLETE)
-            - Game logic implemented
-            - Basic visualizing implemented
-        - NIM (ALMOST COMPLETE)
-            - Game logic implemented
-            - Needs testing + very basic visualizing in terminal
     - MCTS (NOT STARTED)
     - Neural network (NOT STARTED)
     - Tournament (NOT STARTED)
-    
+
+COMPLETE:
+    - Environment (Hex, NIM) (COMPLETE)
+        - HEX (COMPLETE)
+            - Game logic implemented
+            - Basic visualizing implemented
+        - NIM (COMPLETE)
+            - Game logic implemented
+            - Basic visualizing implemented
