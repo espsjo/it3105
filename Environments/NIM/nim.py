@@ -11,6 +11,7 @@ class NIM:
         self.stones = nim_config["STONES"]
         self.min_stones = nim_config["MIN_STONES"]
         self.max_stones = nim_config["MAX_STONES"]
+        self.won_msg = (nim_config["WON_MSG"] or verbose)
         self.verbose = verbose
         self.reset_states(self.verbose, player_start=1)
 
@@ -37,6 +38,11 @@ class NIM:
         self.board_hist = []
 
         self.legal_moves = self.get_legal_moves()
+
+        if self.verbose:
+            print(
+                f"""
+## NEW GAME OF NIM ##""")
 
     """
     Checks if a player has won
@@ -73,6 +79,13 @@ class NIM:
 
         # Update state
         new_state -= move
+
+        if self.verbose:
+            print(f"""
+There are {self.state} remaining stone(s).
+Player {self.player} has chosen to take {move} stone(s)
+Now, there are {new_state} stone(s) left.""")
+
         self.state = new_state
 
         # Update legal moves
@@ -82,6 +95,8 @@ class NIM:
         if self.is_winning():
             self.winner = self.player
             self.board_hist.append(self.state)
+            if self.won_msg:
+                print(f"\nThe winner is player {self.winner}")
 
         # Update player turn
         if self.player == 1:
@@ -128,3 +143,11 @@ class NIM:
 
     def get_state(self):
         return self.state
+
+    """
+    Function for checking if the game is over
+    Returns bool
+    """
+
+    def is_won(self):
+        return bool(self.winner)

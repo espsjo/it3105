@@ -1,14 +1,23 @@
 from Environments.Hex.hex import Hex
-from constants import hex_config, config
+from Environments.NIM.nim import NIM
+from config import hex_config, nim_config, config
 import numpy as np
 
 
 def main():
-    h = Hex(hex_config, visualize=True)
-    while not h.winner:
-        move = int(np.random.choice(h.get_legal_moves()))
-        h.play_move(move)
+    GAME = config["GAME"]
+    UI_ON = config["UI_ON"]
+    if GAME == "hex":
+        h = Hex(hex_config, visualize=UI_ON)
+        while not h.is_won():
+            move = int(np.random.choice(h.get_legal_moves()))
+            h.play_move(move)
+    if GAME == "nim":
+        n = NIM(nim_config, verbose=UI_ON)
+        while not n.is_won():
+            move = int(np.random.choice(n.get_legal_moves()))
+            n.play_move(move)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -4,7 +4,7 @@ import numpy as np
 
 
 class HexGUI:
-    """ 
+    """
     Initialises the class
     Returns void
     """
@@ -21,8 +21,8 @@ class HexGUI:
 
     def setup(self):
         _, self.ax = plt.subplots(1)
-        self.ax.set_aspect('equal')
-        self.colors = {0: 'white', 1: 'red', 2: 'blue'}
+        self.ax.set_aspect("equal")
+        self.colors = {0: "white", 1: "red", 2: "blue"}
         self.board = self.Hex.state
         self.visualize_move(self.board, False, False)
 
@@ -37,54 +37,75 @@ class HexGUI:
     def visualize_move(self, board, won, move):
         if won:
             winning_island = self.Hex.winning_island
-            plt.title(
-                f"The winner was {self.colors[won]} (player {won}) ")
+            plt.title(f"The winner was {self.colors[won]} (player {won}) ")
 
             l = []
             for i, j in enumerate(board.flatten()):
                 colors = self.colors
                 c = self.Hex.convert_node(i, isflattened=True)
                 if c == move:
-                    colors = {0: 'white', 1: 'darkred', 2: 'darkblue'}
+                    colors = {0: "white", 1: "darkred", 2: "darkblue"}
 
                 # Horizontal cartesian coords
-                x = c[0]*np.sqrt(3)+0.87*c[1]
+                x = c[0] * np.sqrt(3) + 0.87 * c[1]
 
                 # Vertical cartersian coords
-                y = -c[1]*3/2
+                y = -c[1] * 3 / 2
 
                 if not i in winning_island:
-                    hex = RegularPolygon((x, y), numVertices=6, radius=1,
-                                         orientation=np.radians(0),
-                                         facecolor=colors[j], alpha=1, edgecolor='k')
+                    hex = RegularPolygon(
+                        (x, y),
+                        numVertices=6,
+                        radius=1,
+                        orientation=np.radians(0),
+                        facecolor=colors[j],
+                        alpha=1,
+                        edgecolor="k",
+                    )
                     self.ax.add_patch(hex)
                 else:
-                    l.append(RegularPolygon((x, y), numVertices=6, radius=1, orientation=np.radians(
-                        0), facecolor=colors[j], alpha=1, edgecolor='darkorange', linewidth=4))
+                    l.append(
+                        RegularPolygon(
+                            (x, y),
+                            numVertices=6,
+                            radius=1,
+                            orientation=np.radians(0),
+                            facecolor=colors[j],
+                            alpha=1,
+                            edgecolor="darkorange",
+                            linewidth=4,
+                        )
+                    )
             for i in l:
                 self.ax.add_patch(i)
-            self.ax.axis('off')
-            plt.axis('scaled')
+            self.ax.axis("off")
+            plt.axis("scaled")
             plt.pause(0.001)
         else:
             for i, j in enumerate(self.board.flatten()):
                 colors = self.colors
                 c = self.Hex.convert_node(i, isflattened=True)
                 if c == move:
-                    colors = {0: 'white', 1: 'darkred', 2: 'darkblue'}
+                    colors = {0: "white", 1: "darkred", 2: "darkblue"}
                 # Horizontal cartesian coords
-                x = c[0]*np.sqrt(3)+0.87*c[1]
+                x = c[0] * np.sqrt(3) + 0.87 * c[1]
 
                 # Vertical cartersian coords
-                y = -c[1]*3/2
+                y = -c[1] * 3 / 2
 
-                hex = RegularPolygon((x, y), numVertices=6, radius=1,
-                                     orientation=np.radians(0),
-                                     facecolor=colors[j], alpha=1, edgecolor='k')
+                hex = RegularPolygon(
+                    (x, y),
+                    numVertices=6,
+                    radius=1,
+                    orientation=np.radians(0),
+                    facecolor=colors[j],
+                    alpha=1,
+                    edgecolor="k",
+                )
 
                 self.ax.add_patch(hex)
-            self.ax.axis('off')
-            plt.axis('scaled')
+            self.ax.axis("off")
+            plt.axis("scaled")
             plt.pause(self.ANIMATION_SPEED)
         if won:
             plt.show()

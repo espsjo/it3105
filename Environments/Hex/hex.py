@@ -4,7 +4,7 @@ from .hex_gui import HexGUI
 
 
 class Hex:
-    """  
+    """
     Initialise variables
     Returns void
     """
@@ -68,8 +68,9 @@ class Hex:
         for disj in disjoints:
             if len(disj) < self.board_size:
                 continue
-            x_y = set([self.convert_node(flat_n, isflattened=True)[coord]
-                      for flat_n in disj])
+            x_y = set(
+                [self.convert_node(flat_n, isflattened=True)[coord] for flat_n in disj]
+            )
             if x_y == self.win_cond:
                 return True, disj
 
@@ -83,9 +84,9 @@ class Hex:
     def check_valid_move(self, move):
 
         if not isinstance(move, tuple):
-            return (move in self.legal_moves)
+            return move in self.legal_moves
         else:
-            return (self.convert_node(move, isflattened=False) in self.legal_moves)
+            return self.convert_node(move, isflattened=False) in self.legal_moves
 
     """  
     Function for updating the state with a move, given that the move is legal. 
@@ -114,8 +115,7 @@ class Hex:
         new_state[move[0]][move[1]] = self.player
         self.state = new_state
         # Update legal moves
-        self.legal_moves = np.setdiff1d(
-            self.legal_moves, np.array([flat_move]))
+        self.legal_moves = np.setdiff1d(self.legal_moves, np.array([flat_move]))
 
         # Update disjoint sets
         self.update_disjoint_sets(flat_move, self.player)
@@ -126,7 +126,7 @@ class Hex:
             self.winner = self.player
             # Add the final state
             self.board_hist.append(deepcopy(self.state))
-            #print("WINNER WINNER CHICKEN DINNER")
+            # print("WINNER WINNER CHICKEN DINNER")
 
         # Update player turn
         if self.player == 1:
@@ -145,6 +145,14 @@ class Hex:
 
     def get_legal_moves(self):
         return self.legal_moves
+
+    """
+    Function for checking if the game is over
+    Returns bool
+    """
+
+    def is_won(self):
+        return bool(self.winner)
 
     """  
     Function for flattening the state, in variation with or without the current player turn
@@ -202,18 +210,23 @@ class Hex:
 
         r = node[0]
         c = node[1]
-        pot_neighbours = [(r-1, c), (r-1, c+1), (r, c-1),
-                          (r, c+1), (r+1, c-1), (r+1, c)]
+        pot_neighbours = [
+            (r - 1, c),
+            (r - 1, c + 1),
+            (r, c - 1),
+            (r, c + 1),
+            (r + 1, c - 1),
+            (r + 1, c),
+        ]
         neighbours = []
         for n in pot_neighbours:
             x = n[0]
             y = n[1]
 
-            if 0 <= x <= self.board_size-1:
-                if 0 <= y <= self.board_size-1:
+            if 0 <= x <= self.board_size - 1:
+                if 0 <= y <= self.board_size - 1:
                     if returnFlattened:
-                        neighbours.append(
-                            self.convert_node(n, isflattened=False))
+                        neighbours.append(self.convert_node(n, isflattened=False))
                     else:
                         neighbours.append(n)
         return neighbours
@@ -251,10 +264,10 @@ class Hex:
 
     def convert_node(self, node, isflattened: bool):
         if isflattened:  # Node is an index in the flattened state
-            dim1 = node//self.board_size
+            dim1 = node // self.board_size
             dim2 = node % self.board_size
             return (dim1, dim2)
         else:  # Node is a tuple
-            dim1 = self.board_size*node[0]
+            dim1 = self.board_size * node[0]
             dim2 = node[1]
-            return (dim1 + dim2)
+            return dim1 + dim2
