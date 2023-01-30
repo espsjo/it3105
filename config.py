@@ -1,11 +1,12 @@
 config = {
-    "GAME": "nim",  # 'hex', 'nim': Game to be played
+    "GAME": "hex",  # 'hex', 'nim': Game to be played
     "UI_ON": True,  # True, False: Toggles GUI for Hex, verbose for NIM
 }
 
 hex_config = {
     "BOARD_SIZE": 5,  # int: Specifies the board size in Hex
     "ANIMATION_SPEED": 0.25,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
+    "WON_MSG": False,  # True, False: Specifies if the winning player should be printed to console (UI_ON does not override)
 }
 
 nim_config = {

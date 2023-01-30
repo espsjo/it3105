@@ -13,6 +13,7 @@ class Hex:
         self.board_size = hex_config["BOARD_SIZE"]
         self.visualize = visualize
         self.ANIMATION_SPEED = hex_config["ANIMATION_SPEED"]
+        self.won_msg = hex_config["WON_MSG"]
         self.reset_states(self.visualize, player_start=1)
 
     """  
@@ -126,7 +127,8 @@ class Hex:
             self.winner = self.player
             # Add the final state
             self.board_hist.append(deepcopy(self.state))
-            # print("WINNER WINNER CHICKEN DINNER")
+            if self.won_msg:
+                print(f"\nThe winner is player {self.winner}")
 
         # Update player turn
         if self.player == 1:

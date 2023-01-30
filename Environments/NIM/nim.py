@@ -2,7 +2,7 @@ import numpy as np
 
 
 class NIM:
-    """  
+    """
     Initialise variables
     Returns void
     """
@@ -11,8 +11,8 @@ class NIM:
         self.stones = nim_config["STONES"]
         self.min_stones = nim_config["MIN_STONES"]
         self.max_stones = nim_config["MAX_STONES"]
-        self.won_msg = (nim_config["WON_MSG"] or verbose)
         self.verbose = verbose
+        self.won_msg = nim_config["WON_MSG" or self.verbose]
         self.reset_states(self.verbose, player_start=1)
 
     """
@@ -42,7 +42,8 @@ class NIM:
         if self.verbose:
             print(
                 f"""
-## NEW GAME OF NIM ##""")
+## NEW GAME OF NIM ##"""
+            )
 
     """
     Checks if a player has won
@@ -60,7 +61,7 @@ class NIM:
     def check_valid_move(self, move):
         min_move = self.min_stones
         max_move = min(self.max_stones, self.state)
-        return (min_move <= move <= max_move)
+        return min_move <= move <= max_move
 
     """
     Amend the state based on the played move, given that it is legal
@@ -81,10 +82,12 @@ class NIM:
         new_state -= move
 
         if self.verbose:
-            print(f"""
+            print(
+                f"""
 There are {self.state} remaining stone(s).
 Player {self.player} has chosen to take {move} stone(s)
-Now, there are {new_state} stone(s) left.""")
+Now, there are {new_state} stone(s) left."""
+            )
 
         self.state = new_state
 
@@ -112,7 +115,7 @@ Now, there are {new_state} stone(s) left.""")
     def get_legal_moves(self):
         min_move = self.min_stones
         max_move = min(self.max_stones, self.state)
-        return np.array([num for num in range(min_move, max_move+1)])
+        return np.array([num for num in range(min_move, max_move + 1)])
 
     """  
     Function for simulating a reward
