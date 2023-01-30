@@ -46,7 +46,9 @@ class Hex:
         # Winning condition used in is_winning
         self.win_cond = set([i for i in range(self.board_size)])
 
-        if visualize:
+        self.visualize = visualize
+
+        if self.visualize:
             self.hexgui = HexGUI(self, self.ANIMATION_SPEED)
 
     """ 
