@@ -1,4 +1,5 @@
 TODO:
+    - Implement abstract for Hex, NIM + SimWorld class (STARTED)
     - MCTS (NOT STARTED)
     - Neural network (NOT STARTED)
     - Tournament (NOT STARTED)

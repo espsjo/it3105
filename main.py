@@ -11,11 +11,9 @@ def main():
     GAME_CONFIG = game_configs[GAME]
     World = SimWorld(GAME, GAME_CONFIG, visualize=False).get_world()
 
-    # print(World)
-
     if GAME == "hex":
         h = Hex(GAME_CONFIG, visualize=UI_ON)
-        for i in range(1):
+        for i in range(2):
             while not h.is_won():
                 move = int(np.random.choice(h.get_legal_moves()))
                 h.play_move(move)
