@@ -4,11 +4,11 @@ from numpy import ndarray
 
 class SimWorldAbs(ABC):
     @abstractmethod
-    def reset_states(self) -> None:
+    def reset_states(self, visualize, player_start) -> None:
         pass
 
     @abstractmethod
-    def play_move(self) -> bool:
+    def play_move(self, move) -> bool:
         pass
 
     @abstractmethod
@@ -24,7 +24,7 @@ class SimWorldAbs(ABC):
         pass
 
     @abstractmethod
-    def get_state(self) -> ndarray or int:
+    def get_state(self, flatten, include_turn) -> ndarray or int:
         pass
 
     @abstractmethod
