@@ -25,6 +25,11 @@ class HexGUI:
         self.ax.set_aspect("equal")
         self.colors = {0: "white", 1: "red", 2: "blue"}
 
+    """
+    Resets the figure for a new game
+    Returns void
+    """
+
     def reset(self):
         plt.cla()
 

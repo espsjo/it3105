@@ -1,8 +1,9 @@
 import numpy as np
 import time
+from .simworldabs import SimWorldAbs
 
 
-class NIM:
+class NIM(SimWorldAbs):
     """
     Initialise variables
     Returns void

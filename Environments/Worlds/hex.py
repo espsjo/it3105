@@ -1,9 +1,10 @@
 import numpy as np
 from copy import deepcopy
 from .hex_gui import HexGUI
+from .simworldabs import SimWorldAbs
 
 
-class Hex:
+class Hex(SimWorldAbs):
     """
     Initialise variables
     Returns void
