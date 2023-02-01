@@ -37,7 +37,7 @@ class HexGUI:
     Function for visualsing the board after each move. Call to plt.show() depends on a player actually winning the game,
     but this has been mathematically proven to always be the case.
     Also highlights the "island" that proved winning for the player.
-    A little "hacky" for code, especially for the part where a player wins, but does the job for basic visualizing.
+    A little "hacky" code, especially for the part where a player wins, but does the job for basic visualizing.
     Returns void
     """
 
@@ -110,6 +110,7 @@ class HexGUI:
                     alpha=1,
                     edgecolor="k",
                 )
+                plt.text(x - 0.2, y - 0.1, str(i))
 
                 self.ax.add_patch(hex)
             self.ax.axis("off")

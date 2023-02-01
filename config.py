@@ -1,5 +1,5 @@
 config = {
-    "GAME": "nim",  # 'hex', 'nim': Game to be played
+    "GAME": "hex",  # 'hex', 'nim': Game to be played
     "UI_ON": True,  # True, False: Toggles GUI for Hex, verbose for NIM
 }
 

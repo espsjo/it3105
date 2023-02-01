@@ -2,6 +2,10 @@ from .Worlds.hex import Hex
 from .Worlds.nim import NIM
 from .Worlds.simworldabs import SimWorldAbs
 
+"""
+Class for initialising environments into a common object
+"""
+
 
 class SimWorld:
     def __init__(self, GAME, GAME_CONFIG, visualize: bool):

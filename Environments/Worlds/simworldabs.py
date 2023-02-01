@@ -1,6 +1,10 @@
 from abc import ABC, abstractmethod
 from numpy import ndarray
 
+"""
+Abstract class for the SimWorlds, defining functions vital for interacting with the environment
+"""
+
 
 class SimWorldAbs(ABC):
     @abstractmethod

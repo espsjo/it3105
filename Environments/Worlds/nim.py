@@ -45,7 +45,7 @@ class NIM(SimWorldAbs):
         if self.verbose:
             print(
                 f"""
-## NEW GAME OF NIM ##"""
+## NEW GAME OF NIM ({self.min_stones},{self.max_stones}) ##"""
             )
 
     """
