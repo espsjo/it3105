@@ -2,6 +2,7 @@ import numpy as np
 from copy import deepcopy
 from .hex_gui import HexGUI
 from .simworldabs import SimWorldAbs
+from numpy import ndarray
 
 
 class Hex(SimWorldAbs):
@@ -171,7 +172,7 @@ class Hex(SimWorldAbs):
     Returns array
     """
 
-    def flatten_state(self, include_turn: bool):
+    def flatten_state(self, include_turn: bool = False):
         flat_state = self.state.flatten()
         if include_turn:
             flat_state = np.insert(flat_state, 0, self.player, axis=0)
@@ -283,3 +284,35 @@ class Hex(SimWorldAbs):
             dim1 = self.board_size * node[0]
             dim2 = node[1]
             return dim1 + dim2
+
+    """
+    Function for setting state
+    Returns void
+    """
+
+    def set_state(self, state: ndarray or int):
+        if state.ndim == 1:
+            self.state = self.unflatten_state(state)
+        self.state = state
+
+    """
+    Function for setting player
+    Returns void
+    """
+
+    def set_player(self, player: int) -> None:
+        if player == 1 or player == 2:
+            self.player = player
+
+    """
+    Function for unflattening state
+    Returns array
+    """
+
+    def unflatten_state(self, state):
+        s = []
+        r = 0
+        for i in range(self.board_size):
+            s.append([state[n] for n in range(r, self.board_size * (i + 1))])
+            r += self.board_size
+        return np.array(s)

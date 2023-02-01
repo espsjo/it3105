@@ -1,6 +1,7 @@
 import numpy as np
 import time
 from .simworldabs import SimWorldAbs
+from numpy import ndarray
 
 
 class NIM(SimWorldAbs):
@@ -159,3 +160,22 @@ Now, there are {new_state} stone(s) left."""
 
     def is_won(self):
         return bool(self.winner)
+
+    """
+    Function for setting state
+    Returns void
+    """
+
+    def set_state(self, state: ndarray or int):
+        if isinstance(state, ndarray):
+            self.state = state[0]
+        self.state = state
+
+    """
+    Function for setting player
+    Returns void
+    """
+
+    def set_player(self, player: int) -> None:
+        if player == 1 or player == 2:
+            self.player = player

@@ -34,3 +34,11 @@ class SimWorldAbs(ABC):
     @abstractmethod
     def get_current_player(self) -> int:
         pass
+
+    @abstractmethod
+    def set_state(self, state: ndarray or int) -> None:
+        pass
+
+    @abstractmethod
+    def set_player(self, player: int) -> None:
+        pass
