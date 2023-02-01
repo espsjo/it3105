@@ -16,17 +16,17 @@ class NIM(SimWorldAbs):
         self.delay = nim_config["DELAY"]
         self.verbose = visualize
         self.won_msg = nim_config["WON_MSG" or self.verbose]
-        self.reset_states(self.verbose, player_start=1)
+        self.reset_states(player_start=1, visualize=self.verbose)
 
     """
     Resets the states
     Returns void
     """
 
-    def reset_states(self, visualize: bool, player_start):
+    def reset_states(self, player_start, visualize: bool = None):
 
         # Update the verbose variable after reset
-        self.verbose = visualize
+        self.verbose = visualize if visualize != None else self.verbose
 
         # Update the state to represent number of stones
         self.state = self.stones
@@ -45,7 +45,7 @@ class NIM(SimWorldAbs):
         if self.verbose:
             print(
                 f"""
-## NEW GAME OF NIM ({self.min_stones},{self.max_stones}) ##"""
+## NEW GAME OF NIM (Stones = {self.stones}, min: {self.min_stones}, max: {self.max_stones}) ##"""
             )
 
     """

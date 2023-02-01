@@ -14,16 +14,21 @@ class Hex(SimWorldAbs):
         self.board_size = hex_config["BOARD_SIZE"]
         self.visualize = visualize
         self.ANIMATION_SPEED = hex_config["ANIMATION_SPEED"]
+        self.DISPLAY_INDEX = hex_config["DISPLAY_INDEX"]
         self.won_msg = hex_config["WON_MSG"]
-        self.hexgui = HexGUI(self, self.ANIMATION_SPEED) if visualize else None
-        self.reset_states(self.visualize, player_start=1)
+        self.hexgui = (
+            HexGUI(self, self.ANIMATION_SPEED, self.DISPLAY_INDEX)
+            if visualize
+            else None
+        )
+        self.reset_states(player_start=1, visualize=self.visualize)
 
     """  
     Reset state, and variables containing state information
     Returns void
     """
 
-    def reset_states(self, visualize: bool, player_start):
+    def reset_states(self, player_start, visualize: bool = None):
 
         # Represented with 1 and 2
         self.player = player_start
@@ -49,11 +54,11 @@ class Hex(SimWorldAbs):
         # Winning condition used in is_winning
         self.win_cond = set([i for i in range(self.board_size)])
 
-        self.visualize = visualize
+        self.visualize = visualize if visualize != None else self.visualize
 
         if self.visualize:
             if not self.hexgui:
-                self.hexgui = HexGUI(self, self.ANIMATION_SPEED)
+                self.hexgui = HexGUI(self, self.ANIMATION_SPEED, self.DISPLAY_INDEX)
             self.hexgui.reset()
             self.hexgui.visualize_move(self.state, self.winner, None)
 

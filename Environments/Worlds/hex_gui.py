@@ -9,9 +9,10 @@ class HexGUI:
     Returns void
     """
 
-    def __init__(self, Hex, ANIMATION_SPEED: float):
+    def __init__(self, Hex, ANIMATION_SPEED: float, DISPLAY_INDEX: bool):
         self.Hex = Hex
         self.ANIMATION_SPEED = ANIMATION_SPEED
+        self.DISPLAY_INDEX = DISPLAY_INDEX
         self.setup()
 
     """ 
@@ -110,7 +111,8 @@ class HexGUI:
                     alpha=1,
                     edgecolor="k",
                 )
-                plt.text(x - 0.2, y - 0.1, str(i))
+                if self.DISPLAY_INDEX:
+                    plt.text(x - 0.2, y - 0.1, str(i))
 
                 self.ax.add_patch(hex)
             self.ax.axis("off")

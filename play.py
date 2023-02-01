@@ -1,30 +1,28 @@
-from Environments.Worlds.hex import Hex
-from Environments.Worlds.nim import NIM
 from Environments.simworld import SimWorld
 from config import config, game_configs
 import numpy as np
 
 """
-Ability to play against computer - only by registering moves in console
+Ability to play against computer/human - only by registering moves in console (index form)
 Returns void 
 """
 
 
-def play(n_games):
-    GAME = config["GAME"]
-    UI_ON = config["UI_ON"]
-    GAME_CONFIG = game_configs[GAME]
-
-    World = SimWorld(GAME, GAME_CONFIG, visualize=UI_ON).get_world()
+def play(n_games, human_ai: bool):
+    World = SimWorld(config, game_configs).get_world()
     for i in range(n_games):
+        World.reset_states(player_start=1)
         while not World.is_won():
+            p = World.get_current_player()
             if World.get_current_player() == 2:
-                move = int(input(f"\nMove: "))
+                move = int(input(f"\nPlayer {p} move: "))
             else:
-                move = int(np.random.choice(World.get_legal_moves()))
+                if human_ai:
+                    move = int(np.random.choice(World.get_legal_moves()))
+                else:
+                    move = int(input(f"\nPlayer {p} move: "))
             World.play_move(move)
-        World.reset_states(visualize=UI_ON, player_start=1)
 
 
 if __name__ == "__main__":
-    play(1)
+    play(1, human_ai=False)
