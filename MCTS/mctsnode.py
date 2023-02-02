@@ -1,3 +1,6 @@
+from __future__ import annotations
+from typing import Dict
+
 """
 Class for representing a node in the Monte Carlo Tree.
 Contains information about how many times the node has been visited
@@ -12,81 +15,52 @@ class MCTSNode:
     Returns void
     """
 
-    def __init__(self, state):
+    def __init__(self, state, player):
         self.state = state
-        self.N_s = 1
-        self.N_sa = {}
-        self.E_t = 0
-        self.children = []
+        self.player = player
+        self.N_s = 0
+        self.E = 0
+        self.N_sa: Dict[int, int] = {}  # action (int): num (int)
+        self.children: Dict[int, MCTSNode] = {}  # action (int): child (MCTSNode)
+        self.parent: MCTSNode = None
 
     """
-    Add a child node to this node
+    Function for adding child to this node
     Returns void
     """
 
-    def add_child(self, child):
-        self.children.append(child)
+    def add_child(self, move, child: MCTSNode):
+        self.children[move] = child
+        child.parent = self
 
     """
-    Get the child nodes of this node
-    Returns list
+    Returning if the node is a leaf or not
+    Returns bool
     """
 
-    def get_children(self):
-        return self.children
+    def is_leaf(self):
+        return not self.children
 
     """
-    Gets the state which the node represents
-    Returns array
-    """
-
-    def get_state(self):
-        return self.state
-
-    """
-    Gets the number of times visited
+    Returns the E value
     Returns int
     """
 
-    def get_N_s(self):
-        return self.N_s
+    def update_E(self, e):
+        self.E += e
 
     """
-    Gets the number of times an action has been taken from the given node
+    Returns the N_s value
     Returns int
     """
 
-    def get_N_sa(self, move):
-        return self.N_sa.get(move, 0)
-
-    """
-    Gets the running total eval
-    Returns int
-    """
-
-    def get_E_t(self):
-        return self.E_t
-
-    """
-    Increments the running eval
-    Returns void
-    """
-
-    def update_E_t(self, e_t):
-        self.E_t += e_t
-
-    """
-    Updates the times visited
-    Returns void
-    """
-
-    def update_N_s(self):
+    def increment_N_s(self):
         self.N_s += 1
 
     """
-    Updates the times visited
-    Returns void
+    Returns the N_sa value
+    Returns int
     """
 
-    def update_N_sa(self, move):
-        self.N_sa[move] = self.get_N_sa(move) + 1
+    def increment_N_sa(self, move):
+        self.N_sa[move] = self.N_sa.get(move, 0) + 1
