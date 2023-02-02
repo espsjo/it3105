@@ -42,3 +42,7 @@ class SimWorldAbs(ABC):
     @abstractmethod
     def set_player(self, player: int) -> None:
         pass
+
+    @abstractmethod
+    def get_board_hist(self) -> ndarray:
+        pass

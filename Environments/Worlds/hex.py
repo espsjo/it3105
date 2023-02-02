@@ -4,6 +4,12 @@ from .hex_gui import HexGUI
 from .simworldabs import SimWorldAbs
 from numpy import ndarray
 
+"""
+Class for the Hex game, based on the SimWorldAbs abstract class. More extensive than need be, but that is in many cases to 
+account for the ability to process moves on both forms: (int,int) and int. When all functionality is implemented, this code 
+could be reduced to only cover necessary cases.
+"""
+
 
 class Hex(SimWorldAbs):
     """
@@ -17,6 +23,7 @@ class Hex(SimWorldAbs):
         self.ANIMATION_SPEED = hex_config["ANIMATION_SPEED"]
         self.DISPLAY_INDEX = hex_config["DISPLAY_INDEX"]
         self.won_msg = hex_config["WON_MSG"]
+        self.win_cond = set([i for i in range(self.board_size)])
         self.hexgui = (
             HexGUI(self, self.ANIMATION_SPEED, self.DISPLAY_INDEX)
             if visualize
@@ -29,7 +36,7 @@ class Hex(SimWorldAbs):
     Returns void
     """
 
-    def reset_states(self, player_start, visualize: bool = None):
+    def reset_states(self, player_start=1, visualize: bool = None):
 
         # Represented with 1 and 2
         self.player = player_start
@@ -51,9 +58,6 @@ class Hex(SimWorldAbs):
 
         # History of board
         self.board_hist = []
-
-        # Winning condition used in is_winning
-        self.win_cond = set([i for i in range(self.board_size)])
 
         self.visualize = visualize if visualize != None else self.visualize
 
@@ -293,7 +297,8 @@ class Hex(SimWorldAbs):
     def set_state(self, state: ndarray or int):
         if state.ndim == 1:
             self.state = self.unflatten_state(state)
-        self.state = state
+        else:
+            self.state = state
 
     """
     Function for setting player
@@ -316,3 +321,11 @@ class Hex(SimWorldAbs):
             s.append([state[n] for n in range(r, self.board_size * (i + 1))])
             r += self.board_size
         return np.array(s)
+
+    """
+    Function for returning the board history
+    Returns array
+    """
+
+    def get_board_hist(self):
+        return np.array(self.board_hist)

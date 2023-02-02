@@ -24,7 +24,7 @@ class NIM(SimWorldAbs):
     Returns void
     """
 
-    def reset_states(self, player_start, visualize: bool = None):
+    def reset_states(self, player_start=1, visualize: bool = None):
 
         # Update the verbose variable after reset
         self.verbose = visualize if visualize != None else self.verbose
@@ -179,3 +179,11 @@ Now, there are {new_state} stone(s) left."""
     def set_player(self, player: int) -> None:
         if player == 1 or player == 2:
             self.player = player
+
+    """
+    Function for returning the board history
+    Returns array
+    """
+
+    def get_board_hist(self):
+        return np.array(self.board_hist)
