@@ -20,7 +20,7 @@ def main(n_games):
             norm, moves = m.norm_distr()
             move = moves[norm.index(max(norm))]
             World.play_move(move)
-            m.mcts_move(move, change_player=True)
+            m.mcts_move(move)
             print(norm)
             print(moves)
             print(move)

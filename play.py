@@ -45,7 +45,7 @@ def play(n_games, human_ai: bool):
             else:
                 move = int(input("Move: "))
             World.play_move(move)
-            m.mcts_move(move, change_player=True)
+            m.mcts_move(move)
 
 
 if __name__ == "__main__":

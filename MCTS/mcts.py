@@ -39,12 +39,10 @@ class MCTS:
     Returns void
     """
 
-    def mcts_move(self, move: int, change_player: bool):
+    def mcts_move(self, move: int):
         self.env.play_move(move)
         self.root_state = self.env.get_state(flatten=True, include_turn=False)
         self.turn = self.env.get_current_player()
-        if change_player:
-            self.player = self.turn
         # Dont keep children - start over
         self.root = MCTSNode(self.root_state, self.turn)
 
