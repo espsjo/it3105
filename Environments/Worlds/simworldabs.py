@@ -16,7 +16,7 @@ class SimWorldAbs(ABC):
         pass
 
     @abstractmethod
-    def get_legal_moves(self) -> ndarray:
+    def get_legal_moves(self, state) -> ndarray:
         pass
 
     @abstractmethod
@@ -24,7 +24,7 @@ class SimWorldAbs(ABC):
         pass
 
     @abstractmethod
-    def get_reward(self) -> float:
+    def get_reward(self, player) -> float:
         pass
 
     @abstractmethod
@@ -45,4 +45,8 @@ class SimWorldAbs(ABC):
 
     @abstractmethod
     def get_board_hist(self) -> ndarray:
+        pass
+
+    @abstractmethod
+    def get_actions(self) -> ndarray:
         pass

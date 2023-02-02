@@ -8,17 +8,17 @@ Class for initialising environments into a common object
 
 
 class SimWorld:
-    def __init__(self, config, game_configs):
+    def __init__(self, config, game_configs, deep: bool = False):
 
         VISUALIZE = config["UI_ON"]
         GAME = config["GAME"]
         GAME_CONFIG = game_configs[GAME]
 
         if GAME == "hex":
-            self.World = Hex(GAME_CONFIG, visualize=VISUALIZE)
+            self.World = Hex(GAME_CONFIG, visualize=(VISUALIZE and not deep))
 
         elif GAME == "nim":
-            self.World = NIM(GAME_CONFIG, visualize=VISUALIZE)
+            self.World = NIM(GAME_CONFIG, visualize=(VISUALIZE and not deep))
 
-    def get_world(self):
+    def get_world(self) -> SimWorldAbs:
         return self.World

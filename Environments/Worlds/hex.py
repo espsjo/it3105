@@ -45,7 +45,7 @@ class Hex(SimWorldAbs):
         self.state = np.zeros((self.board_size, self.board_size))
 
         # Legal moves are represented as indexes in the flattened state
-        self.legal_moves = np.array([i for i in range(self.board_size**2)])
+        self.legal_moves = self.get_legal_moves(self.state)
 
         # Variable for which player eventually wins. If != 0, the game should stop
         self.winner = 0
@@ -131,7 +131,7 @@ class Hex(SimWorldAbs):
         new_state[move[0]][move[1]] = self.player
         self.state = new_state
         # Update legal moves
-        self.legal_moves = np.setdiff1d(self.legal_moves, np.array([flat_move]))
+        self.legal_moves = self.get_legal_moves(self.state)
 
         # Update disjoint sets
         self.update_disjoint_sets(flat_move, self.player)
@@ -160,8 +160,9 @@ class Hex(SimWorldAbs):
     Returns array
     """
 
-    def get_legal_moves(self):
-        return self.legal_moves
+    def get_legal_moves(self, state):
+        state = self.flatten_state(state)
+        return np.where(state == 0)[0]
 
     """
     Function for checking if the game is over
@@ -176,8 +177,8 @@ class Hex(SimWorldAbs):
     Returns array
     """
 
-    def flatten_state(self, include_turn: bool = False):
-        flat_state = self.state.flatten()
+    def flatten_state(self, state, include_turn: bool = False):
+        flat_state = state.flatten()
         if include_turn:
             flat_state = np.insert(flat_state, 0, self.player, axis=0)
         return flat_state
@@ -208,7 +209,7 @@ class Hex(SimWorldAbs):
     Returns array
     """
 
-    def get_state(self, flatten: bool, include_turn: bool):
+    def get_state(self, flatten: bool = False, include_turn: bool = False):
         state = self.state
         if flatten:
             state = self.flatten_state(state, include_turn=include_turn)
@@ -329,3 +330,11 @@ class Hex(SimWorldAbs):
 
     def get_board_hist(self):
         return np.array(self.board_hist)
+
+    """
+    Function for retuning how many actions all possible actions, legal or not
+    Returns array
+    """
+
+    def get_actions(self) -> ndarray:
+        return np.array([i for i in range(self.board_size**2)])

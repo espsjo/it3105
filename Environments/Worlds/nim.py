@@ -16,7 +16,7 @@ class NIM(SimWorldAbs):
         self.max_stones = nim_config["MAX_STONES"]
         self.delay = nim_config["DELAY"]
         self.verbose = visualize
-        self.won_msg = nim_config["WON_MSG" or self.verbose]
+        self.won_msg = nim_config["WON_MSG"] or self.verbose
         self.reset_states(player_start=1, visualize=self.verbose)
 
     """
@@ -41,7 +41,7 @@ class NIM(SimWorldAbs):
         # History of states
         self.board_hist = []
 
-        self.legal_moves = self.get_legal_moves()
+        self.legal_moves = self.get_legal_moves(self.state)
 
         if self.verbose:
             print(
@@ -96,7 +96,7 @@ Now, there are {new_state} stone(s) left."""
         self.state = new_state
 
         # Update legal moves
-        self.legal_moves = self.get_legal_moves()
+        self.legal_moves = self.get_legal_moves(self.state)
 
         # Check for win
         if self.is_winning():
@@ -111,16 +111,18 @@ Now, there are {new_state} stone(s) left."""
         else:
             self.player = 1
 
-        time.sleep(self.delay)
+        if self.verbose:
+            pass
+            time.sleep(self.delay)
 
     """
     Finds every legal move, given the current state
     Returns array
     """
 
-    def get_legal_moves(self):
+    def get_legal_moves(self, state):
         min_move = self.min_stones
-        max_move = min(self.max_stones, self.state)
+        max_move = min(self.max_stones, state)
         return np.array([num for num in range(min_move, max_move + 1)])
 
     """  
@@ -150,7 +152,7 @@ Now, there are {new_state} stone(s) left."""
     Returns array
     """
 
-    def get_state(self, flatten, include_turn):
+    def get_state(self, flatten=False, include_turn=False):
         return self.state
 
     """
@@ -187,3 +189,11 @@ Now, there are {new_state} stone(s) left."""
 
     def get_board_hist(self):
         return np.array(self.board_hist)
+
+    """
+    Function for retuning how many actions all possible actions, legal or not
+    Returns array
+    """
+
+    def get_actions(self) -> ndarray:
+        return np.array([i for i in range(self.min_stones, self.max_stones + 1)])
