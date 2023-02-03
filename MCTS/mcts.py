@@ -1,6 +1,4 @@
 from Environments.Worlds.simworldabs import SimWorldAbs
-from Environments.simworld import SimWorld
-from actor import Actor
 from .mctsnode import MCTSNode
 import numpy as np
 import time
@@ -52,6 +50,17 @@ class MCTS:
     """
 
     def itr(self):
+        current, world = self.search()
+        current, world = self.expand(current, world)
+        world = self.rollout(world)
+        self.backprop(current, world)
+
+    """
+    Runs the tree-search
+    Returns the current node and world state
+    """
+
+    def search(self):
         # Search
         world = deepcopy(self.env)
         current = self.root
@@ -61,6 +70,14 @@ class MCTS:
             world.play_move(action)
             current.increment_N_sa(action)
             current = current.children[action]
+        return current, world
+
+    """
+    Expands the node with its children
+    Returns one of the children and the given world state
+    """
+
+    def expand(self, current, world):
         # Expand
         if not world.is_won():
             legal = world.get_legal_moves(world.get_state())
@@ -80,12 +97,27 @@ class MCTS:
             current.increment_N_sa(new_act)
             current = current.children[new_act]
             world.play_move(new_act)
+        return current, world
+
+    """
+    Rollout on the child given
+    Returns the world state
+    """
+
+    def rollout(self, world):
         # Rollout
         while not world.is_won():
             legal = world.get_legal_moves(world.get_state())
             action = int(np.random.choice(legal))  ## INSERT SOME POLICY
             world.play_move(action)
-        # Backprop
+        return world
+
+    """
+    Backprops the reward to all the nodes
+    Returns void
+    """
+
+    def backprop(self, current, world):
         while current is not None:
             current.update_E(world.get_reward(self.player))
             current.increment_N_s()
