@@ -8,7 +8,7 @@ Abstract class for the SimWorlds, defining functions vital for interacting with 
 
 class SimWorldAbs(ABC):
     @abstractmethod
-    def reset_states(self, player_start, visualize) -> None:
+    def reset_states(self, player_start) -> None:
         pass
 
     @abstractmethod
@@ -49,4 +49,8 @@ class SimWorldAbs(ABC):
 
     @abstractmethod
     def get_actions(self) -> ndarray:
+        pass
+
+    @abstractmethod
+    def get_winner(self) -> int:
         pass

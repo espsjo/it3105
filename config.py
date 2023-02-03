@@ -11,11 +11,11 @@ game_configs = {
         "DISPLAY_INDEX": True,  # True, False: Specifies if the GUI should display indexes (useful for human play)
     },
     "nim": {
-        "STONES": 5,  # int: Specifies number of stones in NIM
+        "STONES": 20,  # int: Specifies number of stones in NIM
         "MIN_STONES": 1,  # int: Specifies the min number of stones you must take each turn
-        "MAX_STONES": 4,  # int: Specifies the max number of stones you can take each turn (unless there are fewer stones left)
+        "MAX_STONES": 5,  # int: Specifies the max number of stones you can take each turn (unless there are fewer stones left)
         "WON_MSG": False,  # True, False: Specifies if the winning player should be printed to console (UI_ON overrides this if True)
-        "DELAY": 0,  # float, delay between moves for some reason? (UNSTABLE USE AT OWN RISK)
+        "DELAY": 0.2,  # float, delay between moves for some reason? (UNSTABLE USE AT OWN RISK)
     },
 }
 

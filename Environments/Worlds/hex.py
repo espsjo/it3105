@@ -17,26 +17,18 @@ class Hex(SimWorldAbs):
     Returns void
     """
 
-    def __init__(self, hex_config, visualize: bool):
+    def __init__(self, hex_config):
         self.board_size = hex_config["BOARD_SIZE"]
-        self.visualize = visualize
-        self.ANIMATION_SPEED = hex_config["ANIMATION_SPEED"]
-        self.DISPLAY_INDEX = hex_config["DISPLAY_INDEX"]
         self.won_msg = hex_config["WON_MSG"]
         self.win_cond = set([i for i in range(self.board_size)])
-        self.hexgui = (
-            HexGUI(self, self.ANIMATION_SPEED, self.DISPLAY_INDEX)
-            if visualize
-            else None
-        )
-        self.reset_states(player_start=1, visualize=self.visualize)
+        self.reset_states(player_start=1)
 
     """  
     Reset state, and variables containing state information
     Returns void
     """
 
-    def reset_states(self, player_start=1, visualize: bool = None):
+    def reset_states(self, player_start=1):
 
         # Represented with 1 and 2
         self.player = player_start
@@ -58,14 +50,6 @@ class Hex(SimWorldAbs):
 
         # History of board
         self.board_hist = []
-
-        self.visualize = visualize if visualize != None else self.visualize
-
-        if self.visualize:
-            if not self.hexgui:
-                self.hexgui = HexGUI(self, self.ANIMATION_SPEED, self.DISPLAY_INDEX)
-            self.hexgui.reset()
-            self.hexgui.visualize_move(self.state, self.winner, None)
 
     """ 
     Function for validating if a player has won the current game or not 
@@ -91,6 +75,14 @@ class Hex(SimWorldAbs):
                 return True, disj
 
         return False, None
+
+    """ 
+    Function for returning winner
+    Returns int
+    """
+
+    def get_winner(self) -> int:
+        return self.winner
 
     """ 
     Function for validating a move
@@ -151,8 +143,6 @@ class Hex(SimWorldAbs):
         else:
             self.player = 1
 
-        if self.visualize:
-            self.hexgui.visualize_move(self.state, self.winner, move)
         return True
 
     """  

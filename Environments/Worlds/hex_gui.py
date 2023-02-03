@@ -1,18 +1,20 @@
 from matplotlib import pyplot as plt
 from matplotlib.patches import RegularPolygon
 import numpy as np
+from .visualizerabs import VisualizerAbs
+from .simworldabs import SimWorldAbs
 
 
-class HexGUI:
+class HexGUI(VisualizerAbs):
     """
     Initialises the class
     Returns void
     """
 
-    def __init__(self, Hex, ANIMATION_SPEED: float, DISPLAY_INDEX: bool):
-        self.Hex = Hex
-        self.ANIMATION_SPEED = ANIMATION_SPEED
-        self.DISPLAY_INDEX = DISPLAY_INDEX
+    def __init__(self, hex_config):
+        self.hex_config = hex_config
+        self.ANIMATION_SPEED = self.hex_config["ANIMATION_SPEED"]
+        self.DISPLAY_INDEX = self.hex_config["DISPLAY_INDEX"]
         self.setup()
 
     """ 
@@ -33,6 +35,7 @@ class HexGUI:
 
     def reset(self):
         plt.cla()
+        plt.pause(0.001)
 
     """ 
     Function for visualsing the board after each move. Call to plt.show() depends on a player actually winning the game,
@@ -42,17 +45,26 @@ class HexGUI:
     Returns void
     """
 
-    def visualize_move(self, board, won, move):
-        self.board = board
-        if won:
+    def visualize_move(self, Hex: SimWorldAbs, move=None):
+        self.Hex = Hex
+        self.move = move
+        if move != None:
+
+            self.move = self.Hex.convert_node(move, isflattened=True)
+        self.board = self.Hex.get_state()
+        self.won = self.Hex.is_won()
+        self.winner = self.Hex.get_winner()
+        if self.won:
             winning_island = self.Hex.winning_island
-            plt.title(f"The winner was {self.colors[won]} (player {won}) ")
+            plt.title(
+                f"The winner was {self.colors[self.winner]} (player {self.winner}) "
+            )
 
             l = []
-            for i, j in enumerate(board.flatten()):
+            for i, j in enumerate(self.board.flatten()):
                 colors = self.colors
                 c = self.Hex.convert_node(i, isflattened=True)
-                if c == move:
+                if c == self.move:
                     colors = {0: "white", 1: "darkred", 2: "darkblue"}
 
                 # Horizontal cartesian coords
@@ -89,12 +101,13 @@ class HexGUI:
                 self.ax.add_patch(i)
             self.ax.axis("off")
             plt.axis("scaled")
-            plt.pause(3)
+            plt.pause(2)
+            self.reset()
         else:
             for i, j in enumerate(self.board.flatten()):
                 colors = self.colors
                 c = self.Hex.convert_node(i, isflattened=True)
-                if c == move:
+                if c == self.move:
                     colors = {0: "white", 1: "darkred", 2: "darkblue"}
                 # Horizontal cartesian coords
                 x = c[0] * np.sqrt(3) + 0.87 * c[1]

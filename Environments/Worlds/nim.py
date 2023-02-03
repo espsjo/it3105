@@ -10,24 +10,20 @@ class NIM(SimWorldAbs):
     Returns void
     """
 
-    def __init__(self, nim_config, visualize: bool):
+    def __init__(self, nim_config):
         self.stones = nim_config["STONES"]
         self.min_stones = nim_config["MIN_STONES"]
         self.max_stones = nim_config["MAX_STONES"]
         self.delay = nim_config["DELAY"]
-        self.verbose = visualize
-        self.won_msg = nim_config["WON_MSG"] or self.verbose
-        self.reset_states(player_start=1, visualize=self.verbose)
+        self.won_msg = nim_config["WON_MSG"]
+        self.reset_states(player_start=1)
 
     """
     Resets the states
     Returns void
     """
 
-    def reset_states(self, player_start=1, visualize: bool = None):
-
-        # Update the verbose variable after reset
-        self.verbose = visualize if visualize != None else self.verbose
+    def reset_states(self, player_start=1):
 
         # Update the state to represent number of stones
         self.state = self.stones
@@ -42,12 +38,6 @@ class NIM(SimWorldAbs):
         self.board_hist = []
 
         self.legal_moves = self.get_legal_moves(self.state)
-
-        if self.verbose:
-            print(
-                f"""
-## NEW GAME OF NIM (Stones = {self.stones}, min: {self.min_stones}, max: {self.max_stones}) ##"""
-            )
 
     """
     Checks if a player has won
@@ -85,14 +75,6 @@ class NIM(SimWorldAbs):
         # Update state
         new_state -= move
 
-        if self.verbose:
-            print(
-                f"""
-There are {self.state} remaining stone(s).
-Player {self.player} has chosen to take {move} stone(s)
-Now, there are {new_state} stone(s) left."""
-            )
-
         self.state = new_state
 
         # Update legal moves
@@ -104,16 +86,13 @@ Now, there are {new_state} stone(s) left."""
             self.board_hist.append(self.state)
             if self.won_msg:
                 print(f"\nThe winner is player {self.winner}")
-
         # Update player turn
         if self.player == 1:
             self.player = 2
         else:
             self.player = 1
 
-        if self.verbose:
-            pass
-            time.sleep(self.delay)
+        return True
 
     """
     Finds every legal move, given the current state
@@ -197,3 +176,11 @@ Now, there are {new_state} stone(s) left."""
 
     def get_actions(self) -> ndarray:
         return np.array([i for i in range(self.min_stones, self.max_stones + 1)])
+
+    """ 
+    Function for returning winner
+    Returns int
+    """
+
+    def get_winner(self) -> int:
+        return self.winner
