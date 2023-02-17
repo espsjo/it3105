@@ -111,12 +111,11 @@ class MCTS:
         # Rollout
         while not world.is_won():
             legal_moves = world.get_legal_moves(world.get_state())
-            action = int(np.random.choice(legal_moves))
             if actor != None:
                 state = world.get_state(flatten=True, include_turn=True)
                 action = actor.get_action(state, legal_moves, choose_greedy=False)
-
-                # action = actor.random_action(legal_moves)  ### RANDOM MOVE
+            else:
+                action = int(np.random.choice(legal_moves))
 
             world.play_move(action)
         return world
