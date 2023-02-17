@@ -1,5 +1,8 @@
 TODO:
-    - Neural network (NOT STARTED)
+    - Neural network (NEARLY COMPLETE)
+        - RL Learner (COMPLETE)
+        - Actor (COMPLETE -> Needs finetuning, and/or rewrite)
+        - Saving and loading NNs 
     - Tournament (NOT STARTED)
     - Restructuring and removing redundant code
 

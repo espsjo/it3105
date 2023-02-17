@@ -204,7 +204,7 @@ class Hex(SimWorldAbs):
         if flatten:
             state = self.flatten_state(state, include_turn=include_turn)
         elif include_turn:
-            state = state.insert(0, self.player)
+            state = np.insert(state, 0, self.player)
         return state
 
     """

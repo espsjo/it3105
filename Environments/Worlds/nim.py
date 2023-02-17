@@ -132,7 +132,9 @@ class NIM(SimWorldAbs):
     """
 
     def get_state(self, flatten=False, include_turn=False):
-        return self.state
+        if include_turn:
+            return [self.player, self.state]
+        return [self.state]
 
     """
     Function for checking if the game is over
