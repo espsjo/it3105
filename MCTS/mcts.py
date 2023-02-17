@@ -1,9 +1,9 @@
 from Environments.Worlds.simworldabs import SimWorldAbs
 from .mctsnode import MCTSNode
 import numpy as np
-import time
 from typing import Dict
 from copy import deepcopy
+from ANET.anet import ANET
 
 """
 Class for carrying out iterations in the Monte Carlo Tree Search 
@@ -24,8 +24,8 @@ class MCTS:
         self.player = player
 
         # Constants
-        self.EPSILON = MCTS_config["EPSILON"]
         self.UCT_C = MCTS_config["UCT_C"]
+        self.KEEP_SUBTREE = MCTS_config["KEEP_SUBTREE"]
 
         # Initialise root and player info
         self.turn = self.env.get_current_player()
@@ -39,20 +39,23 @@ class MCTS:
 
     def mcts_move(self, move: int):
         self.env.play_move(move)
-        self.root_state = self.env.get_state(flatten=True, include_turn=False)
-        self.turn = self.env.get_current_player()
-        # Dont keep children - start over
-        self.root = MCTSNode(self.root_state, self.turn)
+        if not self.KEEP_SUBTREE:
+            self.root_state = self.env.get_state(flatten=True, include_turn=False)
+            self.turn = self.env.get_current_player()
+            self.root = MCTSNode(self.root_state, self.turn)
+        else:
+            self.root = self.root.children[move]
+            self.root.parent = None
 
     """
     Runs one iteration of MCTS
     Returns void
     """
 
-    def itr(self):
+    def itr(self, actor=None):
         current, world = self.search()
         current, world = self.expand(current, world)
-        world = self.rollout(world)
+        world = self.rollout(world, actor)
         self.backprop(current, world)
 
     """
@@ -104,11 +107,17 @@ class MCTS:
     Returns the world state
     """
 
-    def rollout(self, world):
+    def rollout(self, world: SimWorldAbs, actor: ANET):
         # Rollout
         while not world.is_won():
-            legal = world.get_legal_moves(world.get_state())
-            action = int(np.random.choice(legal))  ## INSERT SOME POLICY
+            legal_moves = world.get_legal_moves(world.get_state())
+            action = int(np.random.choice(legal_moves))
+            if actor != None:
+                state = world.get_state(flatten=True, include_turn=True)
+                action = actor.get_action(state, legal_moves, choose_greedy=False)
+
+                # action = actor.random_action(legal_moves)  ### RANDOM MOVE
+
             world.play_move(action)
         return world
 
