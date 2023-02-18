@@ -1,6 +1,6 @@
 from Environments.simworld import SimWorld
 from MCTS.mcts import MCTS
-from config import config, game_configs, MCTS_config
+from Config.config import config, game_configs, MCTS_config
 import time
 from Environments.visualizer import Visualizer
 

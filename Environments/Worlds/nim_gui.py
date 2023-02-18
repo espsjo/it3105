@@ -37,7 +37,7 @@ class NIMGUI(VisualizerAbs):
         else:
             self.player = self.env.get_current_player()
             former = self.state
-            self.state = self.env.get_state()
+            self.state = self.env.get_state(include_turn=False)[0]
             print(
                 f"""
 There are {former} remaining stone(s).

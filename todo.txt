@@ -1,8 +1,4 @@
 TODO:
-    - Neural network (NEARLY COMPLETE)
-        - RL Learner (COMPLETE)
-        - Actor (COMPLETE -> Needs finetuning, and/or rewrite)
-        - Saving and loading NNs 
     - Tournament (NOT STARTED)
     - Restructuring and removing redundant code
 
@@ -16,3 +12,7 @@ COMPLETE:
         - NIM (COMPLETE)
             - Game logic implemented
             - Basic visualizing implemented
+    - Neural network (COMPLETE)
+        - RL Learner (COMPLETE)
+        - Actor (COMPLETE)
+        - Saving and loading NNs (COMPLETE)

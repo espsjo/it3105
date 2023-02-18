@@ -99,8 +99,12 @@ class NIM(SimWorldAbs):
     Returns array
     """
 
-    def get_legal_moves(self, state):
+    def get_legal_moves(self, state=None):
+        if state is None:
+            return self.legal_moves
         min_move = self.min_stones
+        if isinstance(state, (list, ndarray)):
+            state = state[-1]
         max_move = min(self.max_stones, state)
         return np.array([num for num in range(min_move, max_move + 1)])
 

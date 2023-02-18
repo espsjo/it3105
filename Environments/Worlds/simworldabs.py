@@ -16,7 +16,7 @@ class SimWorldAbs(ABC):
         pass
 
     @abstractmethod
-    def get_legal_moves(self, state) -> ndarray:
+    def get_legal_moves(self, state=None) -> ndarray:
         pass
 
     @abstractmethod

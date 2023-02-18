@@ -150,7 +150,9 @@ class Hex(SimWorldAbs):
     Returns array
     """
 
-    def get_legal_moves(self, state):
+    def get_legal_moves(self, state=None):
+        if state is None:
+            return self.legal_moves
         state = self.flatten_state(state)
         return np.where(state == 0)[0]
 
