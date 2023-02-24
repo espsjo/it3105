@@ -14,7 +14,9 @@ def play(n_games):
     UI_ON = config["UI_ON"]
     GUI = Visualizer(config, game_configs).get_GUI() if UI_ON else None
 
-    actor = ANET(ANET_config=ANET_config, Environment=World, model_name="Test5x5_hex_4")
+    actor = ANET(
+        ANET_config=ANET_config, Environment=World, model_name="TEST_hex_5x5_2"
+    )
 
     for _ in range(n_games):
         World.reset_states(player_start=1)
@@ -22,12 +24,13 @@ def play(n_games):
             GUI.visualize_move(World)
         while not World.is_won():
             if World.get_current_player() == 1:
-                print(
-                    actor.action_distrib(
-                        World.get_state(flatten=True, include_turn=True),
-                        World.get_legal_moves(),
-                    )
+                x = actor.action_distrib(
+                    World.get_state(flatten=True, include_turn=True),
+                    World.get_legal_moves(),
                 )
+                x = [(f"{n}: {str(round(i, 2))}") for n, i in enumerate(x)]
+                print(x)
+
                 move = actor.get_action(
                     World.get_state(flatten=True, include_turn=True),
                     World.get_legal_moves(),

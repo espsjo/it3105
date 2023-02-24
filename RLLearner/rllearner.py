@@ -5,6 +5,7 @@ from MCTS.mcts import MCTS
 from ANET.anet import ANET
 import random
 from Environments.visualizer import Visualizer
+from matplotlib import pyplot as plt
 
 
 class RLLearner:
@@ -26,6 +27,7 @@ class RLLearner:
         self.SAVE_INTERVAL = RLLearner_config["SAVE_INTERVAL"]
         self.SAVE_PATH = RLLearner_config["SAVE_PATH"]
         self.SAVE_NAME = RLLearner_config["SAVE_NAME"]
+        self.TRAIN_UI = RLLearner_config["TRAIN_UI"]
 
         self.simworld = SimWorld(config, game_configs, simulator=False).get_world()
         self.mcts_world = SimWorld(config, game_configs, simulator=True).get_world()
@@ -36,6 +38,8 @@ class RLLearner:
         self.save_ind = 0
 
         self.rbuf_index = 0
+
+        self.GUI = Visualizer(config, game_configs).get_GUI()
 
     """
     Training the neural net by running episodes where moves are chosen from MCTS, which again is using the Actor/Random to guide rollout moves
@@ -54,7 +58,7 @@ class RLLearner:
             pass
 
         for eps in range(self.EPISODES):
-            print(f"EPISODE: {eps+1}")
+            print(f"\nEPISODE: {eps+1}; EPSILON: {self.actor.epsilon}")
             # Varying player start and reseting envs
             player = np.random.choice([1, 2])
 
@@ -62,6 +66,8 @@ class RLLearner:
             self.mcts_world.reset_states(player_start=player)
             monte_carlo = MCTS(self.MCTS_config, self.mcts_world, player=player)
             # Run one episode
+            if self.TRAIN_UI:
+                self.GUI.visualize_move(self.simworld)
             while not self.simworld.is_won():
                 t_start = time()
 
@@ -70,6 +76,7 @@ class RLLearner:
                 while (i < self.MIN_SIMS) or (time() - t_start < self.MAX_TIME):
                     monte_carlo.itr(self.actor)  ### PASS INN ACTOR TO GUIDE ROLLOUTS
                     i += 1
+                print(f"{i}; {time() - t_start}")
                 # Retriving normal distributions as well as indexes of corresponding moves
                 norm_distr, corr_moves = monte_carlo.norm_distr()
                 state = self.simworld.get_state(flatten=True, include_turn=True)
@@ -86,9 +93,10 @@ class RLLearner:
 
                 # Choosing and playing move
                 move = corr_moves[norm_distr.index(max(norm_distr))]
-                self.simworld.play_move(move)
+                moved = self.simworld.play_move(move)
                 monte_carlo.mcts_move(move)
-
+                if self.TRAIN_UI and moved:
+                    self.GUI.visualize_move(self.simworld, move)
             # Sampling a minibatch
             mbatch = random.sample(rbuf, min(len(rbuf), self.MINIBATCH_SIZE))
             self.actor.train(mbatch)
@@ -98,4 +106,18 @@ class RLLearner:
                 self.actor.save_model(
                     self.SAVE_NAME + str(self.save_ind), self.SAVE_PATH
                 )
+
+                h = self.actor.get_history()
+                x = []
+                y = []
+                for i, hist in enumerate(h):
+                    x.append(i)
+                    y.append(hist.history["loss"][-1])
+                plt.plot(x, y)
+                plt.ylim(0, max(y) + 1)
+                plt.savefig(
+                    f"{self.SAVE_PATH}/{self.SAVE_NAME}{str(self.save_ind)}_loss_hist.pdf"
+                )
+                plt.close()
+
                 self.save_ind += 1

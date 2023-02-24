@@ -7,14 +7,14 @@ from Environments.visualizer import Visualizer
 
 def main(n_games):
     World = SimWorld(config, game_configs, simulator=False).get_world()
+    mcts_env = SimWorld(config, game_configs, simulator=True).get_world()
     UI_ON = config["UI_ON"]
     GUI = Visualizer(config, game_configs).get_GUI() if UI_ON else None
-
+    player_start = 1
     for x in range(n_games):
-        World.reset_states(player_start=1)
-        mcts_env = SimWorld(config, game_configs, simulator=True).get_world()
-        m = MCTS(MCTS_config, mcts_env, player=1)
-        mcts_env.reset_states(player_start=1)
+        World.reset_states(player_start=player_start)
+        mcts_env.reset_states(player_start=player_start)
+        m = MCTS(MCTS_config, mcts_env, player=player_start)
         if GUI:
             GUI.visualize_move(World)
         while not World.is_won():

@@ -17,6 +17,7 @@ class ANET:
         self.MIN_EPSILON = ANET_config["MIN_EPSILON"]
         self.LOAD_PATH = ANET_config["LOAD_PATH"]
         self.Environment = Environment
+        self.history = []
 
         self.all_moves = self.Environment.get_actions()
 
@@ -79,10 +80,16 @@ class ANET:
 
     def train(self, minibatch):
         x, y = zip(*minibatch)
+        callback = ks.callbacks.EarlyStopping(monitor="loss", patience=2)
 
-        self.model.fit(
-            np.array(x), np.array(y), batch_size=self.BATCH_SIZE, epochs=self.EPOCHS
+        hist = self.model.fit(
+            np.array(x),
+            np.array(y),
+            batch_size=self.BATCH_SIZE,
+            epochs=self.EPOCHS,
+            callbacks=[callback],
         )
+        self.history.append(hist)
 
     """
     Decays epsilon according to parameters
@@ -141,3 +148,6 @@ class ANET:
     def load(self, model_name):
         x = tf.keras.models.load_model(f"{self.LOAD_PATH}/{model_name}", compile=False)
         self.model = x
+
+    def get_history(self):
+        return self.history
