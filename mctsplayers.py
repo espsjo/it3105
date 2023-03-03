@@ -20,7 +20,7 @@ def main(n_games):
         while not World.is_won():
             i = 0
             t = time.time()
-            while (i < 1000) and (time.time() - t < 1):
+            while (i < 1000) and (time.time() - t < 3):
                 m.itr()
                 i += 1
             norm, moves = m.norm_distr()

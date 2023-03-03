@@ -4,6 +4,7 @@ import numpy as np
 from typing import Dict
 from copy import deepcopy
 from ANET.anet import ANET
+from ANET.litemodel import LiteModel
 
 """
 Class for carrying out iterations in the Monte Carlo Tree Search 
@@ -52,10 +53,10 @@ class MCTS:
     Returns void
     """
 
-    def itr(self, actor=None):
+    def itr(self, actor=None, litemodel=None):
         current, world = self.search()
         current, world = self.expand(current, world)
-        world = self.rollout(world, actor)
+        world = self.rollout(world, actor, litemodel)
         self.backprop(current, world)
 
     """
@@ -107,13 +108,15 @@ class MCTS:
     Returns the world state
     """
 
-    def rollout(self, world: SimWorldAbs, actor: ANET):
+    def rollout(self, world: SimWorldAbs, actor: ANET, litemodel: LiteModel):
         # Rollout
         while not world.is_won():
             legal_moves = world.get_legal_moves(world.get_state())
             if actor != None:
                 state = world.get_state(flatten=True, include_turn=True)
-                action = actor.get_action(state, legal_moves, choose_greedy=False)
+                action = actor.get_action(
+                    state, legal_moves, choose_greedy=False, litemodel=litemodel
+                )
             else:
                 action = int(np.random.choice(legal_moves))
 

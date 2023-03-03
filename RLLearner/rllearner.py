@@ -6,6 +6,7 @@ from ANET.anet import ANET
 import random
 from Environments.visualizer import Visualizer
 from matplotlib import pyplot as plt
+from ANET.litemodel import LiteModel
 
 
 class RLLearner:
@@ -35,6 +36,8 @@ class RLLearner:
         self.actor = ANET(
             ANET_config=ANET_config, Environment=self.simworld, model_name=None
         )
+        self.litemodel = None
+
         self.save_ind = 0
 
         self.rbuf_index = 0
@@ -65,6 +68,10 @@ class RLLearner:
             self.simworld.reset_states(player_start=player)
             self.mcts_world.reset_states(player_start=player)
             monte_carlo = MCTS(self.MCTS_config, self.mcts_world, player=player)
+
+            if eps % 5 == 0:
+                self.litemodel = LiteModel.from_keras_model(self.actor.model)
+
             # Run one episode
             if self.TRAIN_UI:
                 self.GUI.visualize_move(self.simworld)
@@ -74,7 +81,9 @@ class RLLearner:
                 # Iterating MCTS
                 i = 0
                 while (i < self.MIN_SIMS) or (time() - t_start < self.MAX_TIME):
-                    monte_carlo.itr(self.actor)  ### PASS INN ACTOR TO GUIDE ROLLOUTS
+                    monte_carlo.itr(
+                        self.actor, self.litemodel
+                    )  ### PASS INN ACTOR TO GUIDE ROLLOUTS
                     i += 1
                 print(f"{i}; {time() - t_start}")
                 # Retriving normal distributions as well as indexes of corresponding moves
@@ -110,10 +119,16 @@ class RLLearner:
                 h = self.actor.get_history()
                 x = []
                 y = []
+                y_val = []
                 for i, hist in enumerate(h):
                     x.append(i)
                     y.append(hist.history["loss"][-1])
-                plt.plot(x, y)
+                    y_val.append(hist.history["val_loss"][-1])
+
+                # bug here closes visualizing of training...
+                plt.plot(x, y, label="Loss")
+                plt.plot(x, y_val, label="Val_Loss")
+                plt.legend()
                 plt.ylim(0, max(y) + 1)
                 plt.savefig(
                     f"{self.SAVE_PATH}/{self.SAVE_NAME}{str(self.save_ind)}_loss_hist.pdf"

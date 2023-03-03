@@ -21,8 +21,8 @@ game_configs = {
 
 MCTS_config = {
     "UCT_C": 1,  # float: Variable for weighting the Upper Confidence Bound for Tree
-    "MAX_TIME": 3,  # float: Variable for controlling how much time the algorithm is allowed to spend (seconds) (overwritten by MIN_SIMS)
-    "MIN_SIMS": 600,  # int: How many simulations per move at minimum
+    "MAX_TIME": 1.5,  # float: Variable for controlling how much time the algorithm is allowed to spend (seconds) (overwritten by MIN_SIMS)
+    "MIN_SIMS": 1000,  # int: How many simulations per move at minimum
     "KEEP_SUBTREE": True,  # bool: Specify if to keep the subtree after update
 }
 
@@ -44,18 +44,24 @@ RLLearner_config = {
 
 ANET_config = {
     "EPSILON": 0.99,  # float: Variable for choosing a random move compared to the greedy best move
-    "EPSILON_DECAY": 0.993,  # float: Variable for choosing how fast epsilon should decay
-    "MIN_EPSILON": 0.3,  # float: minimum for epsilon
-    "LEARNING_RATE": 0.01,  # float: Learning rate (None: Default learning rate <-- Please use)
-    "HIDDEN_LAYERS": (256, 128, 64)
+    "EPSILON_DECAY": 0.99,  # float: Variable for choosing how fast epsilon should decay
+    "MIN_EPSILON": 0.2,  # float: minimum for epsilon
+    "LEARNING_RATE": 0.005,  # float: Learning rate (None: Default learning rate <-- Please use)
+    "HIDDEN_LAYERS": (64, 128, 256, 64)
     if config["GAME"] == "hex"
     else (512, 256, 128, 128),  # tuple: Size of hidden layers
     "ACTIVATION": "relu",  # str: relu, tanh, sigmoid
-    "OPTIMIZER": "SGD",  # str: SGD, Adagrad, Adam, RMSprop
-    "LOSS_FUNC": "categorical_crossentropy",  # str: categorical_crossentropy, kl_divergence, mse
-    "EPOCHS": 5,  # int: Epochs to run each fit
+    "OPTIMIZER": "Adam",  # str: SGD, Adagrad, Adam, RMSprop
+    "LOSS_FUNC": "kl_divergence",  # str: categorical_crossentropy, kl_divergence, mse
+    "EPOCHS": 30,  # int: Epochs to run each fit
     "BATCH_SIZE": 48,  # int: Number of batches to use in fitting
     "LOAD_PATH": "Models",  # str: Folder to load models from
+    "MODIFY_STATE": (
+        config["GAME"]
+        in [
+            "hex",  # Add other games here if nn should modify state
+        ]
+    ),  # bool: Specify if we should change state representation from 2 to -1
 }
 
 TOPP_config = {}
