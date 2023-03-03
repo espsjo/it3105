@@ -2,6 +2,7 @@ import tensorflow as tf
 from tensorflow import keras as ks
 from Environments.simworld import SimWorldAbs
 import numpy as np
+from .litemodel import LiteModel
 
 
 class ANET:
@@ -16,6 +17,7 @@ class ANET:
         self.epsilon = ANET_config["EPSILON"]
         self.MIN_EPSILON = ANET_config["MIN_EPSILON"]
         self.LOAD_PATH = ANET_config["LOAD_PATH"]
+        self.MODIFY_STATE = ANET_config["MODIFY_STATE"]
         self.Environment = Environment
         self.history = []
 
@@ -60,15 +62,34 @@ class ANET:
             }
 
         model = ks.Sequential()
-        model.add(ks.layers.Input(shape=(self.INPUT_SIZE,)))
+
+        model.add(
+            ks.layers.Input(
+                shape=(self.INPUT_SIZE,),
+            )
+        )
         for dim in self.HIDDEN_LAYERS:
-            model.add(ks.layers.Dense(dim, activation=self.ACTIVATION))
-        model.add(ks.layers.Dense(self.OUTPUT_SIZE, activation="softmax"))
+            model.add(
+                ks.layers.Dense(
+                    dim,
+                    activation=self.ACTIVATION,
+                    kernel_initializer="random_normal",
+                    bias_initializer="zeros",
+                )
+            )
+            model.add(ks.layers.Dropout(0.1))
+
+        model.add(
+            ks.layers.Dense(
+                self.OUTPUT_SIZE,
+                activation="softmax",
+            )
+        )
 
         model.compile(
             optimizer=optimizers[self.OPTIMIZER],
             loss=self.LOSS_FUNC,
-            metrics=["accuracy", "mse"],
+            metrics=["accuracy"],
         )
         self.model = model
         self.model.summary()
@@ -80,7 +101,12 @@ class ANET:
 
     def train(self, minibatch):
         x, y = zip(*minibatch)
-        callback = ks.callbacks.EarlyStopping(monitor="loss", patience=2)
+        callback = ks.callbacks.EarlyStopping(
+            monitor="loss", patience=3, min_delta=0.0005
+        )
+
+        if self.MODIFY_STATE:
+            x = [self.modify_state(i) for i in x]
 
         hist = self.model.fit(
             np.array(x),
@@ -88,6 +114,7 @@ class ANET:
             batch_size=self.BATCH_SIZE,
             epochs=self.EPOCHS,
             callbacks=[callback],
+            validation_split=0.2,
         )
         self.history.append(hist)
 
@@ -114,8 +141,13 @@ class ANET:
     Returns array
     """
 
-    def action_distrib(self, state, legal_moves):
-        pred = self.model(np.expand_dims(state, axis=0))[0].numpy()
+    def action_distrib(self, state, legal_moves, litemodel: LiteModel = None):
+        if self.MODIFY_STATE:
+            state = self.modify_state(state)
+        if litemodel != None:
+            pred = litemodel.predict_single(state)
+        else:
+            pred = self.model(np.expand_dims(state, axis=0))[0].numpy()
 
         for i, j in enumerate(self.all_moves):
             if j not in legal_moves:
@@ -128,13 +160,14 @@ class ANET:
     Returns array
     """
 
-    def get_action(self, state, legal_moves, choose_greedy: bool):
-
+    def get_action(
+        self, state, legal_moves, choose_greedy: bool, litemodel: LiteModel = None
+    ):
         if not choose_greedy:
             if np.random.random() < self.epsilon:
                 return int(np.random.choice(legal_moves))
 
-        norm_distr = self.action_distrib(state, legal_moves)
+        norm_distr = self.action_distrib(state, legal_moves, litemodel)
         if not norm_distr.any():
             return int(np.random.choice(legal_moves))
 
@@ -149,5 +182,18 @@ class ANET:
         x = tf.keras.models.load_model(f"{self.LOAD_PATH}/{model_name}", compile=False)
         self.model = x
 
+    """
+    Returns the history of training
+    Returns History
+    """
+
     def get_history(self):
         return self.history
+
+    """
+    Modifies states to represent player 2 as -1
+    Returns list
+    """
+
+    def modify_state(self, x):
+        return [i if i != 2 else -1 for i in x]
