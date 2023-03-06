@@ -6,15 +6,14 @@ from copy import deepcopy
 from ANET.anet import ANET
 from ANET.litemodel import LiteModel
 
-"""
-Class for carrying out iterations in the Monte Carlo Tree Search 
-"""
-
 
 class MCTS:
     """
-    Function for initializing MCTS
-    Returns void
+    Class for carrying out iterations in the Monte Carlo Tree Search
+    Parameters:
+        MCTS_config: (dict) MCTS config settings
+        simworld: (SimWorldAbs) The environment
+        player: (int) The player perspective (optional)
     """
 
     def __init__(self, MCTS_config, simworld: SimWorldAbs, player: int = 1):
@@ -33,12 +32,14 @@ class MCTS:
         self.root_state = self.env.get_state(flatten=True, include_turn=False)
         self.root = MCTSNode(self.root_state, self.turn)
 
-    """
-    Updates the environment with the chosen move, inits all the variables to correct
-    Returns void
-    """
-
-    def mcts_move(self, move: int):
+    def mcts_move(self, move: int) -> None:
+        """
+        Updates the environment with the chosen move, inits all the variables to correct
+        Parameters:
+            move: (int) The move to play
+        Returns:
+            None
+        """
         self.env.play_move(move)
         if not self.KEEP_SUBTREE:
             self.root_state = self.env.get_state(flatten=True, include_turn=False)
@@ -48,23 +49,28 @@ class MCTS:
             self.root = self.root.children[move]
             self.root.parent = None
 
-    """
-    Runs one iteration of MCTS
-    Returns void
-    """
-
     def itr(self, actor=None, litemodel=None):
+        """
+        Runs one iteration of MCTS
+        Parameters:
+            actor: (ANET) The actor net which will carry out moves in tree search
+            litemodel: (LiteModel) Optional litemodel for faster runtime
+        Returns:
+            None
+        """
         current, world = self.search()
         current, world = self.expand(current, world)
         world = self.rollout(world, actor, litemodel)
         self.backprop(current, world)
 
-    """
-    Runs the tree-search
-    Returns the current node and world state
-    """
-
     def search(self):
+        """
+        Runs the tree-search
+        Parameters:
+            None
+        Returns:
+            MCTSNode, SimWorldAbs
+        """
         # Search
         world = deepcopy(self.env)
         current = self.root
@@ -76,12 +82,15 @@ class MCTS:
             current = current.children[action]
         return current, world
 
-    """
-    Expands the node with its children
-    Returns one of the children and the given world state
-    """
-
     def expand(self, current, world):
+        """
+        Expands the node with its children
+        Parameters:
+            current: (MCTSNode) The current node
+            world: (SimWorldAbs) The current environment state
+        Returns:
+            MCTSNode, SimWorldAbs
+        """
         # Expand
         if not world.is_won():
             legal = world.get_legal_moves(world.get_state())
@@ -103,12 +112,18 @@ class MCTS:
             world.play_move(new_act)
         return current, world
 
-    """
-    Rollout on the child given
-    Returns the world state
-    """
-
-    def rollout(self, world: SimWorldAbs, actor: ANET, litemodel: LiteModel):
+    def rollout(
+        self, world: SimWorldAbs, actor: ANET, litemodel: LiteModel
+    ) -> SimWorldAbs:
+        """
+        Rollout on the child given
+        Parameters:
+            world: (SimWorldAbs) The current environment state
+            actor: (ANET) The actor net which will carry out moves in tree search
+            litemodel: (LiteModel) Optional litemodel for faster runtime
+        Returns:
+            SimWorldAbs
+        """
         # Rollout
         while not world.is_won():
             legal_moves = world.get_legal_moves(world.get_state())
@@ -123,23 +138,30 @@ class MCTS:
             world.play_move(action)
         return world
 
-    """
-    Backprops the reward to all the nodes
-    Returns void
-    """
-
-    def backprop(self, current, world):
+    def backprop(self, current, world) -> None:
+        """
+        Backprops the reward to all the nodes
+        Parameters:
+            current: (MCTSNode) The current node
+            world: (SimWorldAbs) The current environment state
+        Returns:
+            None
+        """
         while current is not None:
             current.update_E(world.get_reward(self.player))
             current.increment_N_s()
             current = current.parent
 
-    """
-    Helper function for computing UCT
-    Returns dict (move: uct)
-    """
-
-    def compute_uct(self, parent: MCTSNode, max_bool: bool):
+    def compute_uct(self, parent: MCTSNode, max_bool: bool) -> dict:
+        """
+        Helper function for computing UCT
+        Returns dict (move: uct)
+        Parameters:
+            parent: (MCTSNode) The parent node
+            max_bool: (bool) Specify if to max or min
+        Returns:
+            dict
+        """
         act_uct: Dict[int, float] = {}
         sign = 1
         if not max_bool:
@@ -155,12 +177,14 @@ class MCTS:
             act_uct[act] = Q_sa + u_sa * sign
         return act_uct
 
-    """
-    Returns the normal distribution, and also the moves the indexes map to
-    Returns list,list
-    """
-
     def norm_distr(self):
+        """
+        Returns the normal distribution, and also the moves the indexes map to
+        Parameters:
+            None
+        Returns:
+            list, list
+        """
         d = []
         total_vis = self.root.N_s
         for a in self.env.get_actions():
@@ -172,11 +196,14 @@ class MCTS:
 
         return d, self.env.get_actions()
 
-    """
-    Helper function for finding argmax/argmin of a dictionary
-    Returns float
-    """
-
-    def argf(self, d, max_bool: bool):
+    def argf(self, d, max_bool: bool) -> float:
+        """
+        Helper function for finding argmax/argmin of a dictionary
+        Parameters:
+            d: (dict) Dictionary to argmax/argmin
+            max_bool: (bool) Specify if to max or min
+        Returns:
+            float
+        """
         f = max if max_bool else min
         return f(d, key=d.get)

@@ -6,8 +6,9 @@ import time
 
 class NIMGUI(VisualizerAbs):
     """
-    Inits class variables
-    Returns void
+    Class for visualizing nim game
+    Parameters:
+        nim_config: (dict) Config for nim game
     """
 
     def __init__(self, nim_config):
@@ -18,16 +19,27 @@ class NIMGUI(VisualizerAbs):
         self.max_stones = nim_config["MAX_STONES"]
         self.state = self.stones
 
-    """
-    Resets the console
-    Returns void
-    """
-
-    def reset(self):
+    def reset(self) -> None:
+        """
+        Resets the console
+        Parameters:
+            None
+        Returns:
+            None
+        """
         clear = lambda: os.system("cls")
         clear()
 
     def visualize_move(self, env: SimWorldAbs, move=None) -> None:
+        """
+        Visualizes a move by printing info to console
+        Parameters:
+            env: (SimWorldAbs) The environment
+            move: (int) The move that was played
+        Returns:
+            None
+        """
+
         self.env = env
         if move == None:
             print(

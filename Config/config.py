@@ -1,3 +1,8 @@
+"""
+File containg all parameters deemed necessary to be easily accessible.
+Some parameters in how the program operates are fixed, but the most significant can be changed here. 
+"""
+
 config = {
     "GAME": "hex",  # 'hex', 'nim': Game to be played
     "UI_ON": True,  # bool: Toggles GUI for Hex, verbose for NIM

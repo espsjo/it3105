@@ -1,13 +1,15 @@
 import tensorflow as tf
 import numpy as np
 
-"""
-LiteModel for predicting faster (used in MCTS to reduce runtime)
-Found on internet, and directly copied.
-"""
-
 
 class LiteModel:
+    """
+    LiteModel for predicting faster (used in MCTS to reduce runtime)
+    Found on internet, and directly copied.
+    Parameters:
+        interpreter: (Interpreter) Tensorflow lite interpreter. Built using class methods.
+    """
+
     @classmethod
     def from_file(cls, model_path):
         return LiteModel(tf.lite.Interpreter(model_path=model_path))

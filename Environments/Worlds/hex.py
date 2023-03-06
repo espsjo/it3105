@@ -14,7 +14,8 @@ could be reduced to only cover necessary cases.
 class Hex(SimWorldAbs):
     """
     Initialise variables
-    Returns void
+    Parameters:
+        hex_config: (dict) Config file for hex game
     """
 
     def __init__(self, hex_config):
@@ -23,13 +24,15 @@ class Hex(SimWorldAbs):
         self.win_cond = set([i for i in range(self.board_size)])
         self.reset_states(player_start=1)
 
-    """  
-    Reset state, and variables containing state information
-    Returns void
-    """
+    def reset_states(self, player_start=1) -> None:
 
-    def reset_states(self, player_start=1):
-
+        """
+        Reset state, and variables containing state information
+        Parameters:
+            player_start: (int) Specify which player to start (optional)
+        Returns:
+            None
+        """
         # Represented with 1 and 2
         self.player = player_start
 
@@ -51,12 +54,14 @@ class Hex(SimWorldAbs):
         # History of board
         self.board_hist = []
 
-    """ 
-    Function for validating if a player has won the current game or not 
-    Returns bool, set/Void 
-    """
-
     def is_winning(self, player):
+        """
+        Function for validating if a player has won the current game or not
+        Parameters:
+            player: (int) What player to check
+        Returns:
+            bool, set
+        """
 
         disjoints = self.nodesets[player]
         # Player 1 wants to get a connected island where the y-coord (row) counts from 0 to board_size-1
@@ -76,32 +81,38 @@ class Hex(SimWorldAbs):
 
         return False, None
 
-    """ 
-    Function for returning winner
-    Returns int
-    """
-
     def get_winner(self) -> int:
+        """
+        Function for returning winner
+        Parameters:
+            None
+        Returns:
+            int
+        """
         return self.winner
 
-    """ 
-    Function for validating a move
-    Returns boolean
-    """
-
-    def check_valid_move(self, move):
+    def check_valid_move(self, move) -> bool:
+        """
+        Function for validating a move
+        Parameters:
+            move: (int / tuple) Check if a move is valid
+        Returns:
+            bool
+        """
 
         if not isinstance(move, tuple):
             return move in self.legal_moves
         else:
             return self.convert_node(move, isflattened=False) in self.legal_moves
 
-    """  
-    Function for updating the state with a move, given that the move is legal. 
-    Returns bool
-    """
-
-    def play_move(self, move):
+    def play_move(self, move) -> bool:
+        """
+        Function for updating the state with a move, given that the move is legal.
+        Parameters:
+            move: (int / tuple) Move to be played
+        Returns:
+            bool
+        """
         if self.winner != 0:
             return False
         if not self.check_valid_move(move):
@@ -145,42 +156,51 @@ class Hex(SimWorldAbs):
 
         return True
 
-    """  
-    Function for returning legal moves, specifically for redistributing the probabilities in ANET to not include illegal moves
-    Returns array
-    """
-
-    def get_legal_moves(self, state=None):
+    def get_legal_moves(self, state=None) -> np.ndarray:
+        """
+        Function for returning legal moves, specifically for redistributing the probabilities in ANET to not include illegal moves
+        Parameters:
+            state: (np.ndarray / list) State representation
+        Returns:
+            np.ndarray
+        """
         if state is None:
             return self.legal_moves
         state = self.flatten_state(state)
         return np.where(state == 0)[0]
 
-    """
-    Function for checking if the game is over
-    Returns bool
-    """
-
-    def is_won(self):
+    def is_won(self) -> bool:
+        """
+        Function for checking if the game is over
+        Parameters:
+            None
+        Returns:
+            bool
+        """
         return bool(self.winner)
 
-    """  
-    Function for flattening the state, in variation with or without the current player turn
-    Returns array
-    """
-
-    def flatten_state(self, state, include_turn: bool = False):
+    def flatten_state(self, state, include_turn: bool = False) -> np.ndarray:
+        """
+        Function for flattening the state, in variation with or without the current player turn
+        Parameters:
+            state: (list / np.ndarray) State representation
+            include_turn: (bool) To include the turn in the flattened state (optional)
+        Returns:
+            np.ndarray
+        """
         flat_state = state.flatten()
         if include_turn:
             flat_state = np.insert(flat_state, 0, self.player, axis=0)
         return flat_state
 
-    """  
-    Function for simulating a reward
-    Returns int
-    """
-
-    def get_reward(self, player):
+    def get_reward(self, player) -> int:
+        """
+        Function for simulating a reward
+        Parameters:
+            player: (int) What player to simulate for
+        Returns:
+            int
+        """
         if self.winner == 0:
             return 0
         if self.winner != player:
@@ -188,20 +208,27 @@ class Hex(SimWorldAbs):
         else:
             return 1
 
-    """ 
-    Function for getting the current player
-    Returns int
-    """
-
-    def get_current_player(self):
+    def get_current_player(self) -> int:
+        """
+        Function for getting the current player
+        Parameters:
+            None
+        Returns:
+            int
+        """
         return self.player
 
-    """ 
-    Function for getting the current state, either flattened or matrix, with the option to include turn in both
-    Returns array
-    """
-
-    def get_state(self, flatten: bool = False, include_turn: bool = False):
+    def get_state(
+        self, flatten: bool = False, include_turn: bool = False
+    ) -> np.ndarray:
+        """
+        Function for getting the current state, either flattened or matrix, with the option to include turn in both
+        Parameters:
+            flatten: (bool) To flatten the state or not
+            include_turn: (bool) To include the turn or not
+        Returns:
+            np.ndarray
+        """
         state = self.state
         if flatten:
             state = self.flatten_state(state, include_turn=include_turn)
@@ -209,12 +236,16 @@ class Hex(SimWorldAbs):
             state = np.insert(state, 0, self.player)
         return state
 
-    """
-    Function for getting the neighbours of a given "node"
-    Returns list
-    """
+    def get_neighbours(self, node, returnFlattened: bool) -> list:
+        """
+        Function for getting the neighbours of a given "node"
+        Parameters:
+            node: (tuple / int) A cell in the state
+            returnFlattened: (bool) To return flattened neighbours
+        Returns:
+            list
+        """
 
-    def get_neighbours(self, node, returnFlattened: bool):
         if not isinstance(node, tuple):
             node = self.convert_node(node, isflattened=True)
 
@@ -241,12 +272,16 @@ class Hex(SimWorldAbs):
                         neighbours.append(n)
         return neighbours
 
-    """ 
-    Function for updating the disjoint sets of player nodes. "Islands of nodes belonging to a player"
-    Returns void
-    """
+    def update_disjoint_sets(self, move, player) -> None:
+        """
+        Function for updating the disjoint sets of player nodes. "Islands of nodes belonging to a player"
+        Parameters:
+            move: (tuple, int) The played move
+            player: (int) The player to update sets for
+        Returns:
+            None
+        """
 
-    def update_disjoint_sets(self, move, player):
         if isinstance(move, tuple):
             move = self.convert_node(move, isflattened=False)
 
@@ -267,12 +302,16 @@ class Hex(SimWorldAbs):
         still_disjoint.append(set(inserted))
         self.nodesets[player] = still_disjoint
 
-    """  
-    Function for converting node between flattened and unflattened
-    Returns tuple or int
-    """
-
     def convert_node(self, node, isflattened: bool):
+        """
+        Function for converting node between flattened and unflattened
+        Parameters:
+            node: (tuple, int) Cell to change representation of
+            isflattened: (bool) Specify what state cell is in now
+        Returns:
+            tuple / int
+        """
+
         if isflattened:  # Node is an index in the flattened state
             dim1 = node // self.board_size
             dim2 = node % self.board_size
@@ -282,32 +321,39 @@ class Hex(SimWorldAbs):
             dim2 = node[1]
             return dim1 + dim2
 
-    """
-    Function for setting state
-    Returns void
-    """
+    def set_state(self, state: ndarray or int) -> None:
+        """
+        Function for setting state
+        Parameters:
+            state: (np.ndarray) State to set
+        Returns:
+            None
+        """
 
-    def set_state(self, state: ndarray or int):
         if state.ndim == 1:
             self.state = self.unflatten_state(state)
         else:
             self.state = state
 
-    """
-    Function for setting player
-    Returns void
-    """
-
     def set_player(self, player: int) -> None:
+        """
+        Function for setting player
+        Parameters:
+            player: (int) Player to set
+        Returns:
+            None
+        """
         if player == 1 or player == 2:
             self.player = player
 
-    """
-    Function for unflattening state
-    Returns array
-    """
-
-    def unflatten_state(self, state):
+    def unflatten_state(self, state) -> np.ndarray:
+        """
+        Function for unflattening state
+        Parameters:
+            state: (np.ndarray / list) State to change
+        Returns:
+            np.ndarray
+        """
         s = []
         r = 0
         for i in range(self.board_size):
@@ -315,18 +361,22 @@ class Hex(SimWorldAbs):
             r += self.board_size
         return np.array(s)
 
-    """
-    Function for returning the board history
-    Returns array
-    """
-
-    def get_board_hist(self):
+    def get_board_hist(self) -> np.ndarray:
+        """
+        Function for returning the board history
+        Parameters:
+            None
+        Returns:
+            np.ndarray
+        """
         return np.array(self.board_hist)
 
-    """
-    Function for retuning how many actions all possible actions, legal or not
-    Returns array
-    """
-
     def get_actions(self) -> ndarray:
+        """
+        Function for retuning how many actions all possible actions, legal or not
+        Parameters:
+            None
+        Returns:
+            np.ndarray
+        """
         return np.array([i for i in range(self.board_size**2)])

@@ -1,18 +1,16 @@
 from __future__ import annotations
 from typing import Dict
 
-"""
-Class for representing a node in the Monte Carlo Tree.
-Contains information about how many times the node has been visited
-Also contains information about how many times each action has been taken, running reward
-Does not contain information about parents/children, that is handled in the main mcts class
-"""
-
 
 class MCTSNode:
     """
-    Inits the variables to be tracked
-    Returns void
+    Class for representing a node in the Monte Carlo Tree.
+    Contains information about how many times the node has been visited
+    Also contains information about how many times each action has been taken, running reward
+    Does not contain information about parents/children, that is handled in the main mcts class
+    Parameters:
+        state: (np.ndarry) The state this node represents
+        player: (int) The player which turn it is at this node
     """
 
     def __init__(self, state, player):
@@ -24,43 +22,54 @@ class MCTSNode:
         self.children: Dict[int, MCTSNode] = {}  # action (int): child (MCTSNode)
         self.parent: MCTSNode = None
 
-    """
-    Function for adding child to this node
-    Returns void
-    """
-
-    def add_child(self, move, child: MCTSNode):
+    def add_child(self, move, child: MCTSNode) -> None:
+        """
+        Function for adding child to this node
+        Parameters:
+            move: (int) The move which leads to child
+            child: (MCTSNode) The child node
+        Returns:
+            None
+        """
         self.children[move] = child
         child.parent = self
 
-    """
-    Returning if the node is a leaf or not
-    Returns bool
-    """
-
-    def is_leaf(self):
+    def is_leaf(self) -> bool:
+        """
+        Returning if the node is a leaf or not
+        Parameters:
+            None
+        Returns:
+            bool
+        """
         return not self.children
 
-    """
-    Returns the E value
-    Returns int
-    """
-
-    def update_E(self, e):
+    def update_E(self, e) -> None:
+        """
+        Updates the E value
+        Parameters:
+            e: (float) E value to be added
+        Returns:
+            None
+        """
         self.E += e
 
-    """
-    Returns the N_s value
-    Returns int
-    """
-
-    def increment_N_s(self):
+    def increment_N_s(self) -> None:
+        """
+        Increments the N_s value by 1
+        Parameters:
+            None
+        Returns:
+            None
+        """
         self.N_s += 1
 
-    """
-    Returns the N_sa value
-    Returns int
-    """
-
-    def increment_N_sa(self, move):
+    def increment_N_sa(self, move) -> None:
+        """
+        Increments the N_sa value by 1
+        Parameters:
+            move: (int) Which move is to be updated
+        Returns:
+            None
+        """
         self.N_sa[move] = self.N_sa.get(move, 0) + 1

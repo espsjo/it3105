@@ -8,7 +8,8 @@ from .simworldabs import SimWorldAbs
 class HexGUI(VisualizerAbs):
     """
     Initialises the class
-    Returns void
+    Parameters:
+        hex_config: (dict) Config settings for hex
     """
 
     def __init__(self, hex_config):
@@ -17,39 +18,46 @@ class HexGUI(VisualizerAbs):
         self.DISPLAY_INDEX = self.hex_config["DISPLAY_INDEX"]
         self.setup()
 
-    """ 
-    Sets up the GUI and som key variables
-    Returns void
-    """
-
-    def setup(self):
+    def setup(self) -> None:
+        """
+        Sets up the GUI and som key variables
+        Parameters:
+            None
+        Returns:
+            None
+        """
         plt.ion()
         self.fig, self.ax = plt.subplots(1)
         self.ax.set_aspect("equal")
         self.colors = {0: "white", 1: "red", 2: "blue"}
 
-    """
-    Resets the figure for a new game
-    Returns void
-    """
-
-    def reset(self):
+    def reset(self) -> None:
+        """
+        Resets the figure for a new game
+        Parameters:
+            None
+        Returns:
+            None
+        """
         plt.cla()
         plt.pause(0.001)
 
-    """ 
-    Function for visualsing the board after each move. Call to plt.show() depends on a player actually winning the game,
-    but this has been mathematically proven to always be the case.
-    Also highlights the "island" that proved winning for the player.
-    A little "hacky" code, especially for the part where a player wins, but does the job for basic visualizing.
-    Returns void
-    """
+    def visualize_move(self, Hex: SimWorldAbs, move=None) -> None:
+        """
+        Function for visualsing the board after each move. Call to plt.show() depends on a player actually winning the game,
+        but this has been mathematically proven to always be the case.
+        Also highlights the "island" that proved winning for the player.
+        A little "hacky" code, especially for the part where a player wins, but does the job for basic visualizing.
+        Parameters:
+            Hex: (SimWorldAbs) The environment to help visualize the board
+            move: (int) The last played move
+        Returns:
+            None
+        """
 
-    def visualize_move(self, Hex: SimWorldAbs, move=None):
         self.Hex = Hex
         self.move = move
         if move != None:
-
             self.move = self.Hex.convert_node(move, isflattened=True)
         self.board = self.Hex.get_state()
         self.won = self.Hex.is_won()

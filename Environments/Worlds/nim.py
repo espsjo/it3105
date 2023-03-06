@@ -6,8 +6,9 @@ from numpy import ndarray
 
 class NIM(SimWorldAbs):
     """
-    Initialise variables
-    Returns void
+    Class for representing logic and state handling in the NIM game
+    Parameters:
+        nim_config: (dict) Config for the NIM game
     """
 
     def __init__(self, nim_config):
@@ -18,13 +19,14 @@ class NIM(SimWorldAbs):
         self.won_msg = nim_config["WON_MSG"]
         self.reset_states(player_start=1)
 
-    """
-    Resets the states
-    Returns void
-    """
-
-    def reset_states(self, player_start=1):
-
+    def reset_states(self, player_start=1) -> None:
+        """
+        Resets the states
+        Parameters:
+            player_start: (int) Specify player to start (optional)
+        Returns:
+            None
+        """
         # Update the state to represent number of stones
         self.state = self.stones
 
@@ -39,30 +41,36 @@ class NIM(SimWorldAbs):
 
         self.legal_moves = self.get_legal_moves(self.state)
 
-    """
-    Checks if a player has won
-    Returns bool
-    """
-
-    def is_winning(self):
+    def is_winning(self) -> bool:
+        """
+        Checks if a player has won
+        Parameters:
+            None
+        Returns:
+            bool
+        """
         return self.state == 0
 
-    """
-    Checks if a move is legal
-    Returns bool
-    """
-
-    def check_valid_move(self, move):
+    def check_valid_move(self, move) -> bool:
+        """
+        Checks if a move is legal
+        Parameters:
+            move: (int) Move to check
+        Returns:
+            bool
+        """
         min_move = self.min_stones
         max_move = min(self.max_stones, self.state)
         return min_move <= move <= max_move
 
-    """
-    Amend the state based on the played move, given that it is legal
-    Returns bool
-    """
-
-    def play_move(self, move):
+    def play_move(self, move) -> bool:
+        """
+        Amend the state based on the played move, given that it is legal
+        Parameters:
+            move: (int) Move to be played
+        Returns:
+            bool
+        """
         if self.winner != 0:
             return False
         if not self.check_valid_move(move):
@@ -94,12 +102,14 @@ class NIM(SimWorldAbs):
 
         return True
 
-    """
-    Finds every legal move, given the current state
-    Returns array
-    """
-
-    def get_legal_moves(self, state=None):
+    def get_legal_moves(self, state=None) -> np.ndarray:
+        """
+        Finds every legal move, given the current state
+        Parameters:
+            state: (int) The current state representation
+        Returns:
+            np.ndarray
+        """
         if state is None:
             return self.legal_moves
         min_move = self.min_stones
@@ -108,12 +118,14 @@ class NIM(SimWorldAbs):
         max_move = min(self.max_stones, state)
         return np.array([num for num in range(min_move, max_move + 1)])
 
-    """  
-    Function for simulating a reward
-    Returns int
-    """
-
-    def get_reward(self, player):
+    def get_reward(self, player) -> int:
+        """
+        Function for simulating a reward
+        Parameters:
+            player: (int) Player to check reward for
+        Returns:
+            int
+        """
         if self.winner == 0:
             return 0
         if self.winner != player:
@@ -121,72 +133,89 @@ class NIM(SimWorldAbs):
         else:
             return 1
 
-    """ 
-    Function for getting the current player
-    Returns int
-    """
-
-    def get_current_player(self):
+    def get_current_player(self) -> int:
+        """
+        Function for getting the current player
+        Parameters:
+            None
+        Returns:
+            int
+        """
         return self.player
 
-    """ 
-    Function for getting the current state 
-    Does not have option to include turn, as it is unnecessary for the given game
-    Returns array
-    """
-
-    def get_state(self, flatten=False, include_turn=False):
+    def get_state(self, flatten=False, include_turn=False) -> np.ndarray:
+        """
+        Function for getting the current state
+        Does not have option to include turn, as it is unnecessary for the given game
+        Parameters:
+            flatten: (bool) To flatten state or not (Irrelevant here, but required from abstract)
+            include_turn: (bool) To include the player turn
+        Returns:
+            np.ndarray
+        """
         if include_turn:
-            return [self.player, self.state]
-        return [self.state]
+            return np.array([self.player, self.state])
+        return np.array([self.state])
 
-    """
-    Function for checking if the game is over
-    Returns bool
-    """
-
-    def is_won(self):
+    def is_won(self) -> bool:
+        """
+        Function for checking if the game is over
+        Parameters:
+            None
+        Returns:
+            bool
+        """
         return bool(self.winner)
 
-    """
-    Function for setting state
-    Returns void
-    """
-
-    def set_state(self, state: ndarray or int):
+    def set_state(self, state: ndarray or int) -> None:
+        """
+        Function for setting state
+        Parameters:
+            state: (np.ndarray / int) State to be set
+        Returns:
+            None
+        """
         if isinstance(state, ndarray):
-            self.state = state[0]
+            self.state = state[-1]
         self.state = state
 
-    """
-    Function for setting player
-    Returns void
-    """
-
     def set_player(self, player: int) -> None:
+        """
+        Function for setting player
+        Parameters:
+            player: (int) Player to be set
+        Returns:
+            None
+        """
         if player == 1 or player == 2:
             self.player = player
 
-    """
-    Function for returning the board history
-    Returns array
-    """
-
-    def get_board_hist(self):
+    def get_board_hist(self) -> np.ndarray:
+        """
+        Function for returning the board history
+        Parameters:
+            None
+        Returns:
+            np.ndarray
+        """
         return np.array(self.board_hist)
 
-    """
-    Function for retuning how many actions all possible actions, legal or not
-    Returns array
-    """
-
     def get_actions(self) -> ndarray:
+        """
+        Function for retuning how many actions all possible actions, legal or not
+        Parameters:
+            None
+        Returns:
+            np.ndarray
+        """
         return np.array([i for i in range(self.min_stones, self.max_stones + 1)])
 
-    """ 
-    Function for returning winner
-    Returns int
-    """
-
     def get_winner(self) -> int:
+        """
+        Function for returning winner
+        Parameters:
+            None
+        Returns:
+            int
+        """
         return self.winner

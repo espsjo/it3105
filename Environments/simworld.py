@@ -2,12 +2,16 @@ from .Worlds.hex import Hex
 from .Worlds.nim import NIM
 from .Worlds.simworldabs import SimWorldAbs
 
-"""
-Class for initialising environments into a common object
-"""
-
 
 class SimWorld:
+    """
+    Class for initialising environments into a common object
+    Parameters:
+        config: (dict) General config
+        game_configs: (dict) All game config files
+        simulator: (bool) Specify is this simworld is a simulator or not
+    """
+
     def __init__(self, config, game_configs, simulator: bool):
 
         GAME = config["GAME"]
@@ -22,4 +26,11 @@ class SimWorld:
             self.World = NIM(GAME_CONFIG)
 
     def get_world(self) -> SimWorldAbs:
+        """
+        Returns the environment object
+        Parameters:
+            None
+        Returns:
+            SimWorldAbs
+        """
         return self.World

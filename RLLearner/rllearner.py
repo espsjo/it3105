@@ -11,8 +11,12 @@ from ANET.litemodel import LiteModel
 
 class RLLearner:
     """
-    Initialise key parameters, as well as creating a new ANET
-    Returns void
+    Class for creating (or loading) a neural net, and then training it according to parameters in the config files
+    Parameters:
+        config: (dict) General config
+        MCTS_config: (dict) Describing how to perform MCTS
+        RLLearner_config: (dict) Describing how to perform training
+        ANET_config: (dict) Describing how to initialize as well as train the neural network
     """
 
     def __init__(
@@ -44,15 +48,16 @@ class RLLearner:
 
         self.GUI = Visualizer(config, game_configs).get_GUI()
 
-    """
-    Training the neural net by running episodes where moves are chosen from MCTS, which again is using the Actor/Random to guide rollout moves
-    Samples from a replay buffer and trains the net on cases consisting of (x: state, y: distribution from MCTS)
-    Saves the net at given intervals
-    Returns void
-    """
-
-    def train(self):
-
+    def train(self) -> None:
+        """
+        Training the neural net by running episodes where moves are chosen from MCTS, which again is using the Actor/Random to guide rollout moves
+        Samples from a replay buffer and trains the net on cases consisting of (x: state, y: distribution from MCTS)
+        Saves the net at given intervals
+        Parameters:
+            None
+        Returns:
+            None
+        """
         rbuf = []
 
         if self.SAVE:

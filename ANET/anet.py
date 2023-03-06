@@ -7,9 +7,11 @@ from .litemodel import LiteModel
 
 class ANET:
     """
-    Initialise key parameters
-    Either loads a model or creates a new one based on parameters
-    Returns void
+    Class for initializing and loading neural network models. Also implements logic for training the model as well as predicting new samples.
+    Parameters:
+        ANET_config: (dict) Dictionary containing key settings for the neural network
+        Environment: (SimWorldAbs) The simulated world to extract key parameters as input and output size
+        model_name: (str) Name of model to load, inits new if None
     """
 
     def __init__(self, ANET_config, Environment: SimWorldAbs, model_name=None):
@@ -40,12 +42,14 @@ class ANET:
             self.OUTPUT_SIZE = len(self.all_moves)
             self.construct_model()
 
-    """
-    Creates a new model based on parameters
-    Returns void
-    """
-
-    def construct_model(self):
+    def construct_model(self) -> None:
+        """
+        Creates a new model based on parameters
+        Parameters:
+            None
+        Returns:
+            None
+        """
         if self.LEARNING_RATE is None:
             optimizers = {
                 "Adam": ks.optimizers.Adam(),
@@ -94,12 +98,14 @@ class ANET:
         self.model = model
         self.model.summary()
 
-    """
-    Trains the model on a minibatch of cases (x: state, y: target)
-    Returns void
-    """
-
-    def train(self, minibatch):
+    def train(self, minibatch) -> None:
+        """
+        Trains the model on a minibatch of cases
+        Parameters:
+            minibatch: (list) A minibatch of cases to train network on (x: state, y: target)
+        Returns:
+            None
+        """
         x, y = zip(*minibatch)
         callback = ks.callbacks.EarlyStopping(
             monitor="loss", patience=3, min_delta=0.0005
@@ -118,30 +124,40 @@ class ANET:
         )
         self.history.append(hist)
 
-    """
-    Decays epsilon according to parameters
-    Returns void
-    """
-
-    def epsilon_decay(self):
+    def epsilon_decay(self) -> None:
+        """
+        Decays epsilon according to parameters
+        Parameters:
+            None
+        Returns:
+            None
+        """
         x = self.epsilon * self.EPSILON_DECAY
         self.epsilon = max(x, self.MIN_EPSILON)
 
-    """
-    Saves the model to a given path
-    Returns void
-    """
-
-    def save_model(self, name, path):
+    def save_model(self, name, path) -> None:
+        """
+        Saves the model to a given path
+        Parameters:
+            name: (str) Name to save
+            path: (str) Path to save model to
+        Returns:
+            None
+        """
         self.model.save(str(path) + "/" + str(name) + ".h5")
 
-    """
-    Uses the model to predict a distribution based on input state
-    Normalizes to sum to 1
-    Returns array
-    """
-
-    def action_distrib(self, state, legal_moves, litemodel: LiteModel = None):
+    def action_distrib(
+        self, state, legal_moves, litemodel: LiteModel = None
+    ) -> np.ndarray:
+        """
+        Uses the model to predict a distribution based on input state. Normalizes to sum to 1
+        Parameters:
+            state: (np.ndarray) The state representation flattened
+            legal_moves: (np.ndarray / list) A set of legal moves in current state
+            litemodel: (LiteModel) If created a litemodel, use this to carry out predicitions for faster runtime
+        Returns:
+            np.ndarray
+        """
         if self.MODIFY_STATE:
             state = self.modify_state(state)
         if litemodel != None:
@@ -155,14 +171,20 @@ class ANET:
 
         return pred / max(np.sum(pred), 0.00000000001)
 
-    """
-    Returns an action based on the distribution from the model. If not choosing greedy, returns random legal move with specified chance
-    Returns array
-    """
-
     def get_action(
         self, state, legal_moves, choose_greedy: bool, litemodel: LiteModel = None
-    ):
+    ) -> np.ndarray:
+        """
+        Returns an action based on the distribution from the model. If not choosing greedy, returns random legal move with specified chance
+        Parameters:
+            state: (np.ndarray) The state representation flattened
+            legal_moves: (np.ndarray / list) A set of legal moves in current state
+            choose_greedy: (bool) If the function should choose the greedy best move or random at a given epsilon interval
+            litemodel: (LiteModel) If created a litemodel, use this to carry out predicitions for faster runtime
+        Returns:
+            np.ndarray
+        """
+
         if not choose_greedy:
             if np.random.random() < self.epsilon:
                 return int(np.random.choice(legal_moves))
@@ -173,27 +195,34 @@ class ANET:
 
         return self.all_moves[np.argmax(norm_distr)]
 
-    """
-    Loads a given model from the load path specified in the parameters
-    Returns void
-    """
-
-    def load(self, model_name):
+    def load(self, model_name) -> None:
+        """
+        Loads a given model from the load path specified in the parameters
+        Parameters:
+            model_name: (str) Name of model to load
+        Returns:
+            None
+        """
         x = tf.keras.models.load_model(f"{self.LOAD_PATH}/{model_name}", compile=False)
         self.model = x
 
-    """
-    Returns the history of training
-    Returns History
-    """
+    def get_history(self) -> list:
+        """
+        Returns the history of training
+        Parameters:
+            None
+        Returns:
+            list(History)
+        """
 
-    def get_history(self):
         return self.history
 
-    """
-    Modifies states to represent player 2 as -1
-    Returns list
-    """
-
-    def modify_state(self, x):
-        return [i if i != 2 else -1 for i in x]
+    def modify_state(self, x) -> np.ndarray:
+        """
+        Modifies states to represent player 2 as -1
+        Parameters:
+            x: (np.ndarray / list) List to modify
+        Returns:
+            np.ndarray
+        """
+        return np.array([i if i != 2 else -1 for i in x])
