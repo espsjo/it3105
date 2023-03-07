@@ -1,0 +1,9 @@
+Best config yet:
+
+Layers 48,32
+One dropout inbetween 0.1/0.2
+No batch normalization
+Adam
+kl_divergence
+relu
+learn 0.001

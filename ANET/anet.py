@@ -73,7 +73,8 @@ class ANET:
                 shape=(self.INPUT_SIZE,),
             )
         )
-        for dim in self.HIDDEN_LAYERS:
+        for i in range(len(self.HIDDEN_LAYERS)):
+            dim = self.HIDDEN_LAYERS[i]
             model.add(
                 ks.layers.Dense(
                     dim,
@@ -82,7 +83,9 @@ class ANET:
                     bias_initializer="zeros",
                 )
             )
-            model.add(ks.layers.Dropout(0.1))
+            if i + 1 != len(self.HIDDEN_LAYERS):
+                model.add(ks.layers.Dropout(0.1))
+            model.add(ks.layers.BatchNormalization())
 
         model.add(
             ks.layers.Dense(
@@ -112,9 +115,14 @@ class ANET:
         callback = ks.callbacks.EarlyStopping(
             monitor="loss", patience=3, min_delta=0.001
         )
-        redonplat = ks.callbacks.ReduceLROnPlateau(
-            monitor="loss", factor=0.6, patience=4, min_lr=0.001
-        )
+
+        def scheduler(epoch, lr):
+            if epoch < 5:
+                return self.LEARNING_RATE
+            else:
+                return lr * tf.math.exp(-0.1)
+
+        lrs = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
         if self.MODIFY_STATE:
             x = [self.modify_state(i) for i in x]
@@ -128,7 +136,7 @@ class ANET:
             np.array(y),
             batch_size=self.BATCH_SIZE,
             epochs=self.EPOCHS,
-            callbacks=[callback],
+            callbacks=[callback, lrs],
             validation_split=0.25,
         )
         self.history.append(hist)

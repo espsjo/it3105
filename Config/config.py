@@ -11,7 +11,7 @@ config = {
 game_configs = {
     "hex": {
         "BOARD_SIZE": 4,  # int: Specifies the board size in Hex
-        "ANIMATION_SPEED": 0.1,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
+        "ANIMATION_SPEED": 0.5,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
         "WON_MSG": False,  # bool: Specifies if the winning player should be printed to console (UI_ON does not override)
         "DISPLAY_INDEX": True,  # bool: Specifies if the GUI should display indexes (useful for human play)
     },
@@ -25,7 +25,7 @@ game_configs = {
 }
 
 MCTS_config = {
-    "UCT_C": 1.2,  # float: Variable for weighting the Upper Confidence Bound for Tree
+    "UCT_C": 1.3,  # float: Variable for weighting the Upper Confidence Bound for Tree
     "MAX_TIME": 1.5,  # float: Variable for controlling how much time the algorithm is allowed to spend (seconds) (overwritten by MIN_SIMS)
     "MIN_SIMS": 1000,  # int: How many simulations per move at minimum
     "KEEP_SUBTREE": True,  # bool: Specify if to keep the subtree after update
@@ -49,15 +49,15 @@ RLLearner_config = {
 }
 
 ANET_config = {
-    "EPSILON": 0.99,  # float: Variable for choosing a random move compared to the greedy best move
+    "EPSILON": 1,  # float: Variable for choosing a random move compared to the greedy best move
     "EPSILON_DECAY": 0.99,  # float: Variable for choosing how fast epsilon should decay
     "MIN_EPSILON": 0.1,  # float: minimum for epsilon
     "LEARNING_RATE": 0.001,  # float: Learning rate (None: Default learning rate <-- Please use)
-    "HIDDEN_LAYERS": (48, 32)
+    "HIDDEN_LAYERS": (32, 48, 32)
     if config["GAME"] == "hex"
     else (512, 256, 128, 128),  # tuple: Size of hidden layers
     "ACTIVATION": "relu",  # str: relu, tanh, sigmoid
-    "OPTIMIZER": "Adam",  # str: SGD, Adagrad, Adam, RMSprop
+    "OPTIMIZER": "SGD",  # str: SGD, Adagrad, Adam, RMSprop
     "LOSS_FUNC": "kl_divergence",  # str: categorical_crossentropy, kl_divergence, mse
     "EPOCHS": 15,  # int: Epochs to run each fit
     "BATCH_SIZE": 16,  # int: Number of batches to use in fitting

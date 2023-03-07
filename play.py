@@ -2,6 +2,8 @@ from Environments.simworld import SimWorld
 from Environments.visualizer import Visualizer
 from Config.config import config, game_configs, ANET_config
 from ANET.anet import ANET
+import numpy as np
+from time import sleep
 
 """
 Ability to play against computer/human - only by registering moves in console (index form)
@@ -15,7 +17,7 @@ def play(n_games):
     GUI = Visualizer(config, game_configs).get_GUI() if UI_ON else None
 
     actor = ANET(
-        ANET_config=ANET_config, Environment=World, model_name="TEST_hex_5x5_2"
+        ANET_config=ANET_config, Environment=World, model_name="LONG_hex_4x4_4"
     )
 
     for _ in range(n_games):
@@ -37,9 +39,10 @@ def play(n_games):
                     choose_greedy=True,
                 )
             else:
+                # move = np.random.choice(World.get_legal_moves())
                 move = int(input(f"\nMove: "))
             boo = World.play_move(move)
-
+            # sleep(0.1)
             if GUI and boo:
                 GUI.visualize_move(World, move)
 
