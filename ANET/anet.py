@@ -22,6 +22,7 @@ class ANET:
         self.MODIFY_STATE = ANET_config["MODIFY_STATE"]
         self.Environment = Environment
         self.history = []
+        self.TEMPERATURE = ANET_config["TEMPERATURE"]
 
         self.all_moves = self.Environment.get_actions()
 
@@ -93,7 +94,8 @@ class ANET:
         model.compile(
             optimizer=optimizers[self.OPTIMIZER],
             loss=self.LOSS_FUNC,
-            metrics=["accuracy"],
+            loss_weights=[1],
+            metrics=[tf.keras.metrics.categorical_accuracy],
         )
         self.model = model
         self.model.summary()
@@ -108,11 +110,18 @@ class ANET:
         """
         x, y = zip(*minibatch)
         callback = ks.callbacks.EarlyStopping(
-            monitor="loss", patience=3, min_delta=0.0005
+            monitor="loss", patience=3, min_delta=0.001
+        )
+        redonplat = ks.callbacks.ReduceLROnPlateau(
+            monitor="loss", factor=0.6, patience=4, min_lr=0.001
         )
 
         if self.MODIFY_STATE:
             x = [self.modify_state(i) for i in x]
+
+        if self.TEMPERATURE != None:
+            y = [i ** (1 / self.TEMPERATURE) for i in y]
+            y = [i / sum(y) for i in y]
 
         hist = self.model.fit(
             np.array(x),
@@ -120,7 +129,7 @@ class ANET:
             batch_size=self.BATCH_SIZE,
             epochs=self.EPOCHS,
             callbacks=[callback],
-            validation_split=0.2,
+            validation_split=0.25,
         )
         self.history.append(hist)
 

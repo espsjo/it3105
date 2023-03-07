@@ -20,7 +20,13 @@ class RLLearner:
     """
 
     def __init__(
-        self, config, game_configs, MCTS_config, RLLearner_config, ANET_config
+        self,
+        config,
+        game_configs,
+        MCTS_config,
+        RLLearner_config,
+        ANET_config,
+        model_name=None,
     ):
         self.MCTS_config = MCTS_config
         self.MAX_TIME = MCTS_config["MAX_TIME"]
@@ -33,13 +39,15 @@ class RLLearner:
         self.SAVE_PATH = RLLearner_config["SAVE_PATH"]
         self.SAVE_NAME = RLLearner_config["SAVE_NAME"]
         self.TRAIN_UI = RLLearner_config["TRAIN_UI"]
+        self.GREEDY_BIAS = RLLearner_config["GREEDY_BIAS"]
 
         self.simworld = SimWorld(config, game_configs, simulator=False).get_world()
         self.mcts_world = SimWorld(config, game_configs, simulator=True).get_world()
 
-        self.actor = ANET(
-            ANET_config=ANET_config, Environment=self.simworld, model_name=None
+        self.actor = self.actor = ANET(
+            ANET_config=ANET_config, Environment=self.simworld, model_name=model_name
         )
+
         self.litemodel = None
 
         self.save_ind = 0
@@ -69,6 +77,7 @@ class RLLearner:
             print(f"\nEPISODE: {eps+1}; EPSILON: {self.actor.epsilon}")
             # Varying player start and reseting envs
             player = np.random.choice([1, 2])
+            player = 1
 
             self.simworld.reset_states(player_start=player)
             self.mcts_world.reset_states(player_start=player)
@@ -105,8 +114,25 @@ class RLLearner:
                     rbuf[ind] = rbuf_case
                 self.rbuf_index += 1
 
+                # Finds the 3 max indexes
+                ind = np.argpartition(norm_distr, -3)[-3:]
+                # Sorts them
+                ind = ind[np.argsort(np.array(norm_distr)[ind])]
+                ind = np.flip(ind)
+
+                r = np.random.random()
+                # Sets to the best move
+                move = corr_moves[ind[0]]
+
+                # Randomly might select max2, max3 to be the new move
+                for i in range(3):
+                    r -= norm_distr[ind[i]] + self.GREEDY_BIAS
+                    if r < 0:
+                        move = corr_moves[ind[i]]
+                        break
                 # Choosing and playing move
-                move = corr_moves[norm_distr.index(max(norm_distr))]
+                # move = corr_moves[norm_distr.index(max(norm_distr))]
+
                 moved = self.simworld.play_move(move)
                 monte_carlo.mcts_move(move)
                 if self.TRAIN_UI and moved:
@@ -131,10 +157,12 @@ class RLLearner:
                     y_val.append(hist.history["val_loss"][-1])
 
                 # bug here closes visualizing of training...
+                plt.figure(figsize=(10, 6))
                 plt.plot(x, y, label="Loss")
                 plt.plot(x, y_val, label="Val_Loss")
                 plt.legend()
                 plt.ylim(0, max(y) + 1)
+
                 plt.savefig(
                     f"{self.SAVE_PATH}/{self.SAVE_NAME}{str(self.save_ind)}_loss_hist.pdf"
                 )
