@@ -84,8 +84,8 @@ class ANET:
                 )
             )
             if i + 1 != len(self.HIDDEN_LAYERS):
-                model.add(ks.layers.Dropout(0.1))
-            model.add(ks.layers.BatchNormalization())
+                model.add(ks.layers.Dropout(0.2))
+            # model.add(ks.layers.BatchNormalization())
 
         model.add(
             ks.layers.Dense(

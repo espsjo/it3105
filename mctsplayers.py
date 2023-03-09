@@ -25,6 +25,7 @@ def main(n_games):
                 i += 1
             norm, moves = m.norm_distr()
             move = moves[norm.index(max(norm))]
+            print([round(i, 2) for i in norm])
             World.play_move(move)
             m.mcts_move(move)
             if GUI:

@@ -47,7 +47,7 @@ class NIMGUI(VisualizerAbs):
 ## NEW GAME OF NIM (Stones = {self.stones}, min: {self.min_stones}, max: {self.max_stones}) ##"""
             )
         else:
-            self.player = self.env.get_current_player()
+            self.player = 1 if self.env.get_current_player() == 2 else 2
             former = self.state
             self.state = self.env.get_state(include_turn=False)[0]
             print(

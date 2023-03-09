@@ -76,7 +76,7 @@ class RLLearner:
         for eps in range(self.EPISODES):
             print(f"\nEPISODE: {eps+1}; EPSILON: {self.actor.epsilon}")
             # Varying player start and reseting envs
-            player = np.random.choice([1, 2])
+            # player = np.random.choice([1, 2])
             player = 1
 
             self.simworld.reset_states(player_start=player)
@@ -127,7 +127,7 @@ class RLLearner:
                 # Randomly might select max2, max3 to be the new move
                 for i in range(3):
                     r -= norm_distr[ind[i]] + self.GREEDY_BIAS
-                    if r < 0:
+                    if r <= 0:
                         move = corr_moves[ind[i]]
                         break
                 # Choosing and playing move
@@ -137,6 +137,7 @@ class RLLearner:
                 monte_carlo.mcts_move(move)
                 if self.TRAIN_UI and moved:
                     self.GUI.visualize_move(self.simworld, move)
+
             # Sampling a minibatch
             mbatch = random.sample(rbuf, min(len(rbuf), self.MINIBATCH_SIZE))
             self.actor.train(mbatch)
@@ -151,21 +152,27 @@ class RLLearner:
                 x = []
                 y = []
                 y_val = []
+                y_val_acc = []
+                ay = []
+                ay_val = []
+                ay_val_acc = []
                 for i, hist in enumerate(h):
                     x.append(i)
                     y.append(hist.history["loss"][-1])
                     y_val.append(hist.history["val_loss"][-1])
+                    y_val_acc.append(hist.history["val_categorical_accuracy"][-1])
+                    ay.append(np.average(y[-9:]))
+                    ay_val.append(np.average(y_val[-9:]))
+                    ay_val_acc.append(np.average(y_val_acc[-9:]))
 
-                # bug here closes visualizing of training...
                 plt.figure(figsize=(10, 6))
-                plt.plot(x, y, label="Loss")
-                plt.plot(x, y_val, label="Val_Loss")
+                plt.plot(x, ay, label="10ep Mean Loss")
+                plt.plot(x, ay_val, label="10ep Mean Val_Loss")
+                plt.plot(x, ay_val_acc, ":", label="10ep Mean Val Acc")
                 plt.legend()
                 plt.ylim(0, max(y) + 1)
 
-                plt.savefig(
-                    f"{self.SAVE_PATH}/{self.SAVE_NAME}{str(self.save_ind)}_loss_hist.pdf"
-                )
+                plt.savefig(f"{self.SAVE_PATH}/{self.SAVE_NAME}_loss.pdf")
                 plt.close()
 
                 self.save_ind += 1
