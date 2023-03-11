@@ -23,8 +23,11 @@ class ANET:
         self.Environment = Environment
         self.history = []
         self.TEMPERATURE = ANET_config["TEMPERATURE"]
+        self.EPISODES_BEFORE_LR_RED = ANET_config["EPISODES_BEFORE_LR_RED"]
+        self.LR_SCALE_FACTOR = ANET_config["LR_SCALE_FACTOR"]
 
         self.all_moves = self.Environment.get_actions()
+        self.epnr = 0
 
         if model_name != None:
             self.load(model_name + ".h5")
@@ -103,14 +106,16 @@ class ANET:
         self.model = model
         self.model.summary()
 
-    def train(self, minibatch) -> None:
+    def train(self, minibatch, epnr) -> None:
         """
         Trains the model on a minibatch of cases
         Parameters:
             minibatch: (list) A minibatch of cases to train network on (x: state, y: target)
+            epnr: (int) The current episode number
         Returns:
             None
         """
+        self.epnr = epnr
         x, y = zip(*minibatch)
         callback = ks.callbacks.EarlyStopping(
             monitor="loss", patience=3, min_delta=0.001
@@ -118,6 +123,8 @@ class ANET:
 
         def scheduler(epoch, lr):
             if epoch < 5:
+                if self.epnr >= self.EPISODES_BEFORE_LR_RED:
+                    return self.LEARNING_RATE * self.LR_SCALE_FACTOR
                 return self.LEARNING_RATE
             else:
                 return lr * tf.math.exp(-0.1)

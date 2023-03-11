@@ -140,7 +140,7 @@ class RLLearner:
 
             # Sampling a minibatch
             mbatch = random.sample(rbuf, min(len(rbuf), self.MINIBATCH_SIZE))
-            self.actor.train(mbatch)
+            self.actor.train(mbatch, eps)
             self.actor.epsilon_decay()
 
             if (eps + 1) % self.SAVE_INTERVAL == 0 and self.SAVE:

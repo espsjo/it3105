@@ -5,13 +5,13 @@ Some parameters in how the program operates are fixed, but the most significant 
 
 config = {
     "GAME": "hex",  # 'hex', 'nim': Game to be played
-    "UI_ON": True,  # bool: Toggles GUI for Hex, verbose for NIM
+    "UI_ON": False,  # bool: Toggles GUI for Hex, verbose for NIM
 }
 
 game_configs = {
     "hex": {
         "BOARD_SIZE": 4,  # int: Specifies the board size in Hex
-        "ANIMATION_SPEED": 0.5,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
+        "ANIMATION_SPEED": 0.2,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
         "WON_MSG": False,  # bool: Specifies if the winning player should be printed to console (UI_ON does not override)
         "DISPLAY_INDEX": True,  # bool: Specifies if the GUI should display indexes (useful for human play)
     },
@@ -52,14 +52,14 @@ ANET_config = {
     "EPSILON": 1,  # float: Variable for choosing a random move compared to the greedy best move
     "EPSILON_DECAY": 0.99,  # float: Variable for choosing how fast epsilon should decay
     "MIN_EPSILON": 0.1,  # float: minimum for epsilon
-    "LEARNING_RATE": 0.01,  # float: Learning rate (None: Default learning rate <-- Please use)
-    "HIDDEN_LAYERS": (48, 32)
+    "LEARNING_RATE": 0.001,  # float: Learning rate (None: Default learning rate <-- Please use)
+    "HIDDEN_LAYERS": (64, 48)
     if config["GAME"] == "hex"
     else (32, 32),  # tuple: Size of hidden layers
     "ACTIVATION": "relu",  # str: relu, tanh, sigmoid
     "OPTIMIZER": "Adam",  # str: SGD, Adagrad, Adam, RMSprop
     "LOSS_FUNC": "kl_divergence",  # str: categorical_crossentropy, kl_divergence, mse
-    "EPOCHS": 5,  # int: Epochs to run each fit
+    "EPOCHS": 10,  # int: Epochs to run each fit
     "BATCH_SIZE": 32,  # int: Number of batches to use in fitting
     "LOAD_PATH": "Models/Stored",  # str: Folder to load models from
     "MODIFY_STATE": (
@@ -69,6 +69,12 @@ ANET_config = {
         ]
     ),  # bool: Specify if we should change state representation from 2 to -1
     "TEMPERATURE": None,  # float: A temperature to encode the target values with (None / 1 to do nothing)
+    "EPISODES_BEFORE_LR_RED": 100,  # int: Number of episodes before LR is scaled with a factor
+    "LR_SCALE_FACTOR": 0.1,  # float: Factor to scale LR with (1 -> keep the same)
 }
 
-TOPP_config = {}
+TOPP_config = {
+    "LOAD_PATH": "Models/TOPP",  # str: Folder to load models from
+    "GAMES": 2,  # int: Games to play against each other player
+    "PLOT_STATS": True,  # bool: To plot the final stats or not
+}
