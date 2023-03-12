@@ -25,6 +25,7 @@ class ANET:
         self.TEMPERATURE = ANET_config["TEMPERATURE"]
         self.EPISODES_BEFORE_LR_RED = ANET_config["EPISODES_BEFORE_LR_RED"]
         self.LR_SCALE_FACTOR = ANET_config["LR_SCALE_FACTOR"]
+        self.MIN_LR = ANET_config["MIN_LR"]
 
         self.all_moves = self.Environment.get_actions()
         self.epnr = 0
@@ -87,7 +88,7 @@ class ANET:
                 )
             )
             if i + 1 != len(self.HIDDEN_LAYERS):
-                model.add(ks.layers.Dropout(0.1))
+                model.add(ks.layers.Dropout(0.5))
 
         model.add(
             ks.layers.Dense(
@@ -116,16 +117,16 @@ class ANET:
         self.epnr = epnr
         x, y = zip(*minibatch)
         callback = ks.callbacks.EarlyStopping(
-            monitor="loss", patience=5, min_delta=0.001
+            monitor="val_loss", patience=4, min_delta=0.001
         )
 
         def scheduler(epoch, lr):
-            if epoch < 6:
-                if self.epnr >= self.EPISODES_BEFORE_LR_RED:
-                    return self.LEARNING_RATE * self.LR_SCALE_FACTOR
-                return self.LEARNING_RATE
-            else:
-                return lr * tf.math.exp(-0.1)
+            if self.epnr >= self.EPISODES_BEFORE_LR_RED:
+                return max(
+                    self.LEARNING_RATE * (self.LR_SCALE_FACTOR**self.epnr),
+                    self.MIN_LR,
+                )
+            return self.LEARNING_RATE
 
         lrs = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
@@ -142,7 +143,7 @@ class ANET:
             batch_size=self.BATCH_SIZE,
             epochs=self.EPOCHS,
             callbacks=[callback, lrs],
-            validation_split=0.2,
+            validation_split=0.25,
         )
         self.history.append(hist)
 

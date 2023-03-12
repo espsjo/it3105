@@ -41,7 +41,7 @@ class MCTS:
             None
         """
         self.env.play_move(move)
-        if not self.KEEP_SUBTREE:
+        if not self.KEEP_SUBTREE or (move not in self.root.children.keys()):
             self.root_state = self.env.get_state(flatten=True, include_turn=False)
             self.turn = self.env.get_current_player()
             self.root = MCTSNode(self.root_state, self.turn)
