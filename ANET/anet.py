@@ -82,13 +82,12 @@ class ANET:
                 ks.layers.Dense(
                     dim,
                     activation=self.ACTIVATION,
-                    kernel_initializer="random_normal",
+                    kernel_initializer="glorot_uniform",
                     bias_initializer="zeros",
                 )
             )
             if i + 1 != len(self.HIDDEN_LAYERS):
-                model.add(ks.layers.Dropout(0.2))
-            # model.add(ks.layers.BatchNormalization())
+                model.add(ks.layers.Dropout(0.1))
 
         model.add(
             ks.layers.Dense(
@@ -100,7 +99,6 @@ class ANET:
         model.compile(
             optimizer=optimizers[self.OPTIMIZER],
             loss=self.LOSS_FUNC,
-            loss_weights=[1],
             metrics=[tf.keras.metrics.categorical_accuracy],
         )
         self.model = model
@@ -118,11 +116,11 @@ class ANET:
         self.epnr = epnr
         x, y = zip(*minibatch)
         callback = ks.callbacks.EarlyStopping(
-            monitor="loss", patience=3, min_delta=0.001
+            monitor="loss", patience=5, min_delta=0.001
         )
 
         def scheduler(epoch, lr):
-            if epoch < 5:
+            if epoch < 6:
                 if self.epnr >= self.EPISODES_BEFORE_LR_RED:
                     return self.LEARNING_RATE * self.LR_SCALE_FACTOR
                 return self.LEARNING_RATE
@@ -144,7 +142,7 @@ class ANET:
             batch_size=self.BATCH_SIZE,
             epochs=self.EPOCHS,
             callbacks=[callback, lrs],
-            validation_split=0.25,
+            validation_split=0.2,
         )
         self.history.append(hist)
 

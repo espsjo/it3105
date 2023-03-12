@@ -15,6 +15,7 @@ class TOPP:
     """
 
     def __init__(self) -> None:
+        config["UI_ON"] = TOPP_config["TOPP_UI"]
         self.env = SimWorld(config, game_configs, simulator=False).get_world()
         UI_ON = config["UI_ON"]
         self.GUI = Visualizer(config, game_configs).get_GUI() if UI_ON else None
