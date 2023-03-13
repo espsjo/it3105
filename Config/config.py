@@ -10,7 +10,7 @@ config = {
 
 game_configs = {
     "hex": {
-        "BOARD_SIZE": 4,  # int: Specifies the board size in Hex
+        "BOARD_SIZE": 7,  # int: Specifies the board size in Hex
         "ANIMATION_SPEED": 0.5,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
         "WON_MSG": False,  # bool: Specifies if the winning player should be printed to console (UI_ON does not override)
         "DISPLAY_INDEX": True,  # bool: Specifies if the GUI should display indexes (useful for human play)
@@ -38,29 +38,34 @@ save_nim = f"_nim_{game_configs['nim']['STONES']}_{game_configs['nim']['MIN_STON
 RLLearner_config = {
     "EPISODES": 2000,  # int: Specify the number of actual games to run
     "BUFFER_SIZE": 1024,  # int: Specify the size of the replay buffer
-    "MINIBATCH_SIZE": 512,  # int: Specify the number of samples to be retrived from the buffer
+    "MINIBATCH_SIZE": 256,  # int: Specify the number of samples to be retrived from the buffer
     "SAVE": True,  # bool: Specify to save nets or not
     "SAVE_INTERVAL": 50,  # int: Save the target policy at each x episodes
     "SAVE_PATH": "Models/ModelCache",  # str: Path to save nets to
-    "SAVE_NAME": "OVERNIGHT"
+    "SAVE_NAME": "PRAY"
     + (save_hex if config["GAME"] == "hex" else save_nim),  # str: Name for saved models
     "TRAIN_UI": False,  # bool: Specify if UI on while training
     "GREEDY_BIAS": 0.2,  # float: A bias to if the RLLearner should choose greedy or 2,3 best (1 -> Always choose best; -1 -> Never choose best)
 }
 
 ANET_config = {
+    "BUILD_CONV": True,  # bool: To build a convolutional model or "normal". Built specifically for Hex (or any square two player board game)
     "EPSILON": 1,  # float: Variable for choosing a random move compared to the greedy best move
     "EPSILON_DECAY": 0.99,  # float: Variable for choosing how fast epsilon should decay
     "MIN_EPSILON": 0.1,  # float: minimum for epsilon
-    "LEARNING_RATE": 0.01,  # float: Learning rate (None: Default learning rate)
-    "HIDDEN_LAYERS": (64, 64)
+    "LEARNING_RATE": 0.005,  # float: Learning rate (None: Default learning rate)
+    "HIDDEN_LAYERS": (
+        32,
+        64,
+        100,
+    )  # If BUILD_CONV [-1] is Dense, the rest Conv2D. Else: All Dense
     if config["GAME"] == "hex"
     else (32, 32),  # tuple: Size of hidden layers
     "ACTIVATION": "relu",  # str: relu, tanh, sigmoid, selu
-    "OPTIMIZER": "SGD",  # str: SGD, Adagrad, Adam, RMSprop
+    "OPTIMIZER": "Adam",  # str: SGD, Adagrad, Adam, RMSprop
     "LOSS_FUNC": "categorical_crossentropy",  # str: categorical_crossentropy, kl_divergence, mse
     "EPOCHS": 10,  # int: Epochs to run each fit
-    "BATCH_SIZE": 8,  # int: Number of batches to use in fitting
+    "BATCH_SIZE": 16,  # int: Number of batches to use in fitting
     "LOAD_PATH": "Models/Stored",  # str: Folder to load models from
     "MODIFY_STATE": (
         config["GAME"]
@@ -81,5 +86,5 @@ TOPP_config = {
     "PLOT_STATS": True,  # bool: To plot the final stats or not
     "TOPP_UI": False,  # bool: Toggle UI during TOPP
     "PROBABILISTIC": True,  # bool: If always choosing the best move or not
-    "GREEDY_BIAS": 0.3,  # float: Bias towards choosing the best move in probabilistic reasoning (0.4 -> Always choose best if >60% certain)
+    "GREEDY_BIAS": 0.3,  # float: Bias towards choosing the best move in probabilistic reasoning (0.3 -> Always choose best if >70% certain)
 }

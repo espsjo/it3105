@@ -26,9 +26,13 @@ class ANET:
         self.EPISODES_BEFORE_LR_RED = ANET_config["EPISODES_BEFORE_LR_RED"]
         self.LR_SCALE_FACTOR = ANET_config["LR_SCALE_FACTOR"]
         self.MIN_LR = ANET_config["MIN_LR"]
+        self.BUILD_CONV = ANET_config["BUILD_CONV"]
 
-        self.all_moves = self.Environment.get_actions()
+        self.ALL_MOVES = self.Environment.get_actions()
         self.epnr = 0
+
+        self.OUTPUT_SIZE = len(self.ALL_MOVES)
+        self.BOARD_SIZE = int(np.sqrt(self.OUTPUT_SIZE))
 
         if model_name != None:
             self.load(model_name + ".h5")
@@ -44,7 +48,6 @@ class ANET:
             self.INPUT_SIZE = len(
                 self.Environment.get_state(flatten=True, include_turn=True)
             )
-            self.OUTPUT_SIZE = len(self.all_moves)
             self.construct_model()
 
     def construct_model(self) -> None:
@@ -69,33 +72,10 @@ class ANET:
                 "SGD": ks.optimizers.SGD(learning_rate=self.LEARNING_RATE),
                 "RMSprop": ks.optimizers.RMSprop(learning_rate=self.LEARNING_RATE),
             }
-
-        model = ks.Sequential()
-
-        model.add(
-            ks.layers.Input(
-                shape=(self.INPUT_SIZE,),
-            )
-        )
-        for i in range(len(self.HIDDEN_LAYERS)):
-            dim = self.HIDDEN_LAYERS[i]
-            model.add(
-                ks.layers.Dense(
-                    dim,
-                    activation=self.ACTIVATION,
-                    kernel_initializer="glorot_uniform",
-                    bias_initializer="zeros",
-                )
-            )
-            if i + 1 != len(self.HIDDEN_LAYERS):
-                model.add(ks.layers.Dropout(0.5))
-
-        model.add(
-            ks.layers.Dense(
-                self.OUTPUT_SIZE,
-                activation="softmax",
-            )
-        )
+        if self.BUILD_CONV:
+            model = self.build_conv_model()
+        else:
+            model = self.build_normal()
 
         model.compile(
             optimizer=optimizers[self.OPTIMIZER],
@@ -116,6 +96,7 @@ class ANET:
         """
         self.epnr = epnr
         x, y = zip(*minibatch)
+
         callback = ks.callbacks.EarlyStopping(
             monitor="val_loss", patience=4, min_delta=0.001
         )
@@ -132,6 +113,8 @@ class ANET:
 
         if self.MODIFY_STATE:
             x = [self.modify_state(i) for i in x]
+
+        x = [self.convolute(s, player2_rep_as_2=not self.MODIFY_STATE) for s in x]
 
         if self.TEMPERATURE != None:
             y = [i ** (1 / self.TEMPERATURE) for i in y]
@@ -181,14 +164,17 @@ class ANET:
         Returns:
             np.ndarray
         """
+
         if self.MODIFY_STATE:
             state = self.modify_state(state)
+        state = self.convolute(state, player2_rep_as_2=not self.MODIFY_STATE)
+
         if litemodel != None:
             pred = litemodel.predict_single(state)
         else:
             pred = self.model(np.expand_dims(state, axis=0))[0].numpy()
 
-        for i, j in enumerate(self.all_moves):
+        for i, j in enumerate(self.ALL_MOVES):
             if j not in legal_moves:
                 pred[i] = 0
 
@@ -216,7 +202,7 @@ class ANET:
         if not norm_distr.any():
             return int(np.random.choice(legal_moves))
 
-        return self.all_moves[np.argmax(norm_distr)]
+        return self.ALL_MOVES[np.argmax(norm_distr)]
 
     def load(self, model_name) -> None:
         """
@@ -249,3 +235,129 @@ class ANET:
             np.ndarray
         """
         return np.array([i if i != 2 else -1 for i in x])
+
+    def unflatten_state(self, state):
+        """
+        Method for unflattening state - similar to the one implemented in hex.py
+        Parameters:
+            state: (np.ndarray) List of the state
+        Returns:
+            np.ndarray
+        """
+        board_size = self.BOARD_SIZE
+        s = []
+        r = 0
+        for i in range(board_size):
+            s.append([state[n] for n in range(r, board_size * (i + 1))])
+            r += board_size
+        state = np.array(s)
+        return state
+
+    def convolute(self, state, player2_rep_as_2: bool == False):
+        """
+        Method for convoluting a board game state. Layer 0/1/2 are tiles occupied by player1/player2/empty.
+        Layer 3/4 represent whose turn it is.
+        Returns a 5 x Board_size x Board_size matrix
+        Parameters:
+            state: (np.ndarray) List of the state including the player turn as the first element
+            player2_rep_as_2: (bool) If player two is represented with 2: True, with -1: False
+        Returns:
+            np.ndarray
+        """
+        final_matrix = []
+        turn = state[0]
+        state = state[1:]
+        size = len(state)
+
+        features = [1, 2, 0] if player2_rep_as_2 else [1, -1, 0]
+        for feat in features:
+            state_list = [1 if state[tile] == feat else 0 for tile in range(size)]
+            final_matrix.append(self.unflatten_state(state_list))
+
+        features = [1, 2] if player2_rep_as_2 else [1, -1]
+        for feat in features:
+            turn_list = [1 if turn == feat else 0 for i in range(size)]
+            final_matrix.append(self.unflatten_state(turn_list))
+
+        final_matrix = np.rollaxis(np.array(final_matrix), 0, 3)
+        return np.array(final_matrix)
+
+    def build_normal(self) -> ks.models.Sequential:
+        """
+        Method for building a standard sequential model. Can be used with NIM or other games as well.
+        Parameters:
+            None
+        Returns:
+            ks.models.Sequential
+        """
+        model = ks.models.Sequential()
+
+        model.add(
+            ks.layers.Input(
+                shape=(self.INPUT_SIZE,),
+            )
+        )
+        for i in range(len(self.HIDDEN_LAYERS)):
+            dim = self.HIDDEN_LAYERS[i]
+            model.add(
+                ks.layers.Dense(
+                    dim,
+                    activation=self.ACTIVATION,
+                    kernel_initializer="glorot_uniform",
+                    bias_initializer="zeros",
+                )
+            )
+            # if i + 1 != len(self.HIDDEN_LAYERS):
+            #     model.add(ks.layers.Dropout(0.5))
+
+        model.add(
+            ks.layers.Dense(
+                self.OUTPUT_SIZE,
+                activation="softmax",
+            )
+        )
+
+    def build_conv_model(self) -> ks.models.Sequential:
+        """
+        Method for building a sequential convolutional network
+        Parameters:
+            None
+        Returns:
+            ks.models.Sequential
+        """
+        activ = eval("ks.activations." + self.ACTIVATION)
+        model = ks.models.Sequential()
+
+        model.add(
+            ks.layers.Input(
+                shape=(self.BOARD_SIZE, self.BOARD_SIZE, 5),
+            )
+        )
+
+        model.add(
+            ks.layers.Conv2D(
+                self.HIDDEN_LAYERS[0],
+                kernel_size=(3, 3),
+                # input_shape=(self.BOARD_SIZE, self.BOARD_SIZE, 5),
+            )
+        )
+        model.add(ks.layers.BatchNormalization())
+        model.add(ks.layers.Activation(activ))
+
+        for i in range(1, len(self.HIDDEN_LAYERS) - 1):
+            units = self.HIDDEN_LAYERS[i]
+            model.add(
+                ks.layers.Conv2D(
+                    units,
+                    kernel_size=(3, 3),
+                    activation=self.ACTIVATION,
+                )
+            )
+        model.add(ks.layers.MaxPooling2D(pool_size=(2, 2)))
+        model.add(ks.layers.Dropout(0.2))
+
+        model.add(ks.layers.Flatten())
+        model.add(ks.layers.Dense(self.HIDDEN_LAYERS[-1], activation=self.ACTIVATION))
+        model.add(ks.layers.Dense(self.OUTPUT_SIZE, activation="softmax"))
+
+        return model
