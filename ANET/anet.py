@@ -291,14 +291,15 @@ class ANET:
             ks.models.Sequential
         """
         model = ks.models.Sequential()
+        hidden_dense = self.HIDDEN_LAYERS[0]
 
         model.add(
             ks.layers.Input(
                 shape=(self.INPUT_SIZE,),
             )
         )
-        for i in range(len(self.HIDDEN_LAYERS)):
-            dim = self.HIDDEN_LAYERS[i]
+        for i in range(len(hidden_dense)):
+            dim = hidden_dense[i]
             model.add(
                 ks.layers.Dense(
                     dim,
@@ -307,7 +308,7 @@ class ANET:
                     bias_initializer="zeros",
                 )
             )
-            # if i + 1 != len(self.HIDDEN_LAYERS):
+            # if i + 1 != len(hidden_dense):
             #     model.add(ks.layers.Dropout(0.5))
 
         model.add(
@@ -326,6 +327,8 @@ class ANET:
             ks.models.Sequential
         """
         activ = eval("ks.activations." + self.ACTIVATION)
+        hidden_dense, hidden_conv = self.HIDDEN_LAYERS
+
         model = ks.models.Sequential()
 
         model.add(
@@ -336,7 +339,7 @@ class ANET:
 
         model.add(
             ks.layers.Conv2D(
-                self.HIDDEN_LAYERS[0],
+                hidden_conv[0],
                 kernel_size=(3, 3),
                 input_shape=(self.BOARD_SIZE, self.BOARD_SIZE, 5),
                 padding="same",
@@ -345,8 +348,8 @@ class ANET:
         model.add(ks.layers.BatchNormalization())
         model.add(ks.layers.Activation(activ))
 
-        for i in range(1, len(self.HIDDEN_LAYERS) - 1):
-            units = self.HIDDEN_LAYERS[i]
+        for i in range(1, len(hidden_conv)):
+            units = hidden_conv[i]
             model.add(
                 ks.layers.Conv2D(
                     units,
@@ -355,11 +358,24 @@ class ANET:
                     padding="same",
                 )
             )
-            model.add(ks.layers.MaxPooling2D(pool_size=(2, 2), padding="same"))
-            model.add(ks.layers.Dropout(0.2))
+            if i != len(hidden_conv) - 1:
+                model.add(ks.layers.BatchNormalization())
+        model.add(ks.layers.MaxPooling2D(pool_size=(2, 2), padding="same"))
+        model.add(ks.layers.Dropout(0.4))
 
         model.add(ks.layers.Flatten())
-        model.add(ks.layers.Dense(self.HIDDEN_LAYERS[-1], activation=self.ACTIVATION))
+
+        for i in range(len(hidden_dense)):
+            dim = hidden_dense[i]
+            model.add(
+                ks.layers.Dense(
+                    dim,
+                    activation=self.ACTIVATION,
+                    kernel_initializer="glorot_uniform",
+                    bias_initializer="zeros",
+                )
+            )
+
         model.add(ks.layers.Dense(self.OUTPUT_SIZE, activation="softmax"))
 
         return model

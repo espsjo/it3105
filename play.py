@@ -70,4 +70,4 @@ def play(n_games, name, human=True, net_player=1) -> None:
 
 
 if __name__ == "__main__":
-    play(n_games=5, name="4x4/PRAY_hex_4x4_1", human=False, net_player=2)
+    play(n_games=5, name="7x7/PRAY_hex_7x7_1", human=False, net_player=1)
