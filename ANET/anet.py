@@ -257,7 +257,7 @@ class ANET:
         """
         Method for convoluting a board game state. Layer 0/1/2 are tiles occupied by player1/player2/empty.
         Layer 3/4 represent whose turn it is.
-        Returns a 5 x Board_size x Board_size matrix
+        Returns a Board_size x Board_size matrix x 5 array
         Parameters:
             state: (np.ndarray) List of the state including the player turn as the first element
             player2_rep_as_2: (bool) If player two is represented with 2: True, with -1: False
@@ -338,7 +338,8 @@ class ANET:
             ks.layers.Conv2D(
                 self.HIDDEN_LAYERS[0],
                 kernel_size=(3, 3),
-                # input_shape=(self.BOARD_SIZE, self.BOARD_SIZE, 5),
+                input_shape=(self.BOARD_SIZE, self.BOARD_SIZE, 5),
+                padding="same",
             )
         )
         model.add(ks.layers.BatchNormalization())
@@ -351,10 +352,11 @@ class ANET:
                     units,
                     kernel_size=(3, 3),
                     activation=self.ACTIVATION,
+                    padding="same",
                 )
             )
-        model.add(ks.layers.MaxPooling2D(pool_size=(2, 2)))
-        model.add(ks.layers.Dropout(0.2))
+            model.add(ks.layers.MaxPooling2D(pool_size=(2, 2), padding="same"))
+            model.add(ks.layers.Dropout(0.2))
 
         model.add(ks.layers.Flatten())
         model.add(ks.layers.Dense(self.HIDDEN_LAYERS[-1], activation=self.ACTIVATION))

@@ -11,7 +11,7 @@ Returns void
 """
 
 
-def play(n_games, name, human=True, net_player1=True) -> None:
+def play(n_games, name, human=True, net_player=1) -> None:
     """
     Carries out the game
     Paramters:
@@ -36,13 +36,13 @@ def play(n_games, name, human=True, net_player1=True) -> None:
         if GUI:
             GUI.visualize_move(World)
         while not World.is_won():
-            if World.get_current_player() == net_player1:
-                # x = actor.action_distrib(
-                #     World.get_state(flatten=True, include_turn=True),
-                #     World.get_legal_moves(),
-                # )
-                # x = [(f"{n}: {str(round(i, 2))}") for n, i in enumerate(x)]
-                # print(x)
+            if World.get_current_player() == net_player:
+                x = actor.action_distrib(
+                    World.get_state(flatten=True, include_turn=True),
+                    World.get_legal_moves(),
+                )
+                x = [(f"{n}: {str(round(i, 2))}") for n, i in enumerate(x)]
+                print(x)
 
                 move = actor.get_action(
                     World.get_state(flatten=True, include_turn=True),
@@ -70,4 +70,4 @@ def play(n_games, name, human=True, net_player1=True) -> None:
 
 
 if __name__ == "__main__":
-    play(n_games=5, name="4x4/OVERNIGHT_hex_4x4_8", human=False, net_player1=False)
+    play(n_games=5, name="4x4/PRAY_hex_4x4_1", human=False, net_player=2)
