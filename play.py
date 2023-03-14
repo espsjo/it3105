@@ -55,19 +55,19 @@ def play(n_games, name, human=True, net_player=1) -> None:
                 else:
                     i = 0
                     t = time.time()
-                    while (i < 2000) and (time.time() - t < 3):
+                    while i < 2000:  # and (time.time() - t < 3):
                         m.itr()
                         i += 1
+                    print(i)
                     norm, moves = m.norm_distr()
                     move = moves[norm.index(max(norm))]
             boo = World.play_move(move)
             if not human:
                 m.mcts_move(move)
 
-            # sleep(0.1)
             if GUI and boo:
                 GUI.visualize_move(World, move)
 
 
 if __name__ == "__main__":
-    play(n_games=5, name="7x7/PRAY/PRAY_hex_7x7_5", human=False, net_player=2)
+    play(n_games=5, name="7x7/PRAY/PRAY_hex_7x7_5", human=True, net_player=1)

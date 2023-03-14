@@ -7,3 +7,14 @@ Adam
 kl_divergence
 relu
 learn 0.001
+
+#Conv
+
+64,64,64 Conv2d
+Batch normalization
+Adam
+kl_divergence
+relu
+learn 0.001
+No dropout
+Straight to softmax from conv2d (1,(1,1))

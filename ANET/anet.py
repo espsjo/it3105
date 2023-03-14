@@ -3,6 +3,7 @@ from tensorflow import keras as ks
 from Environments.simworld import SimWorldAbs
 import numpy as np
 from .litemodel import LiteModel
+from ANET.network import Network
 
 
 class ANET:
@@ -26,63 +27,39 @@ class ANET:
         self.LR_SCALE_FACTOR = ANET_config["LR_SCALE_FACTOR"]
         self.MIN_LR = ANET_config["MIN_LR"]
         self.BUILD_CONV = ANET_config["BUILD_CONV"]
+        self.LEARNING_RATE = ANET_config["LEARNING_RATE"]
+        self.EPOCHS = ANET_config["EPOCHS"]
+        self.BATCH_SIZE = ANET_config["BATCH_SIZE"]
 
         self.ALL_MOVES = self.Environment.get_actions()
         self.epnr = 0
 
         self.OUTPUT_SIZE = len(self.ALL_MOVES)
         self.BOARD_SIZE = int(np.sqrt(self.OUTPUT_SIZE))
+        self.INPUT_SIZE = self.OUTPUT_SIZE + 1
 
         if model_name != None:
             self.load(model_name + ".h5")
         else:
-            self.LEARNING_RATE = ANET_config["LEARNING_RATE"]
-            self.HIDDEN_LAYERS = ANET_config["HIDDEN_LAYERS"]
-            self.ACTIVATION = ANET_config["ACTIVATION"]
-            self.OPTIMIZER = ANET_config["OPTIMIZER"]
-            self.LOSS_FUNC = ANET_config["LOSS_FUNC"]
-            self.EPOCHS = ANET_config["EPOCHS"]
-            self.BATCH_SIZE = ANET_config["BATCH_SIZE"]
+            self.construct_model(ANET_config=ANET_config)
 
-            self.INPUT_SIZE = len(
-                self.Environment.get_state(flatten=True, include_turn=True)
-            )
-            self.construct_model()
-
-    def construct_model(self) -> None:
+    def construct_model(self, ANET_config) -> None:
         """
         Creates a new model based on parameters
         Parameters:
-            None
+            ANET_config: (dict) Config containing anet params
         Returns:
             None
         """
-        if self.LEARNING_RATE is None:
-            optimizers = {
-                "Adam": ks.optimizers.Adam(),
-                "Adagrad": ks.optimizers.Adagrad(),
-                "SGD": ks.optimizers.SGD(),
-                "RMSprop": ks.optimizers.RMSprop(),
-            }
-        else:
-            optimizers = {
-                "Adam": ks.optimizers.Adam(learning_rate=self.LEARNING_RATE),
-                "Adagrad": ks.optimizers.Adagrad(learning_rate=self.LEARNING_RATE),
-                "SGD": ks.optimizers.SGD(learning_rate=self.LEARNING_RATE),
-                "RMSprop": ks.optimizers.RMSprop(learning_rate=self.LEARNING_RATE),
-            }
+        network = Network(ANET_config=ANET_config)
         if self.BUILD_CONV:
-            model = self.build_conv_model()
+            self.model = network.build_conv_model(
+                in_size=self.BOARD_SIZE, out_size=self.OUTPUT_SIZE
+            )
         else:
-            model = self.build_normal()
-
-        model.compile(
-            optimizer=optimizers[self.OPTIMIZER],
-            loss=self.LOSS_FUNC,
-            metrics=[tf.keras.metrics.categorical_accuracy],
-        )
-        self.model = model
-        self.model.summary()
+            self.model = network.build_normal(
+                in_size=self.BOARD_SIZE, out_size=self.OUTPUT_SIZE
+            )
 
     def train(self, minibatch, epnr) -> None:
         """
@@ -117,7 +94,11 @@ class ANET:
             x = [self.modify_state(i) for i in x]
 
         if self.BUILD_CONV:
-            x = [self.convolute(s, player2_rep_as_2=not self.MODIFY_STATE) for s in x]
+            l = [[s[0], self.unflatten_state(s[1:])] for s in x]
+            x = [
+                self.convolute(tup[1], tup[0], player2_rep_as_2=not self.MODIFY_STATE)
+                for tup in l
+            ]
 
         # Training
         hist = self.model.fit(
@@ -168,7 +149,9 @@ class ANET:
         if self.MODIFY_STATE:
             state = self.modify_state(state)
         if self.BUILD_CONV:
-            state = self.convolute(state, player2_rep_as_2=not self.MODIFY_STATE)
+            turn = state[0]
+            state = self.unflatten_state(state[1:])
+            state = self.convolute(state, turn, player2_rep_as_2=not self.MODIFY_STATE)
 
         if litemodel != None:
             pred = litemodel.predict_single(state)
@@ -227,6 +210,8 @@ class ANET:
 
         return self.history
 
+    ### DATA AUGMENTATION ###
+
     def modify_state(self, x) -> np.ndarray:
         """
         Modifies states to represent player 2 as -1
@@ -254,7 +239,7 @@ class ANET:
         state = np.array(s)
         return state
 
-    def convolute(self, state, player2_rep_as_2: bool == False):
+    def convolute(self, state, turn, player2_rep_as_2: bool = False):
         """
         Method for convoluting a board game state. Layer 0/1/2 are tiles occupied by player1/player2/empty.
         Layer 3/4 represent whose turn it is.
@@ -266,111 +251,18 @@ class ANET:
             np.ndarray
         """
         final_matrix = []
-        turn = state[0]
-        state = state[1:]
-        size = len(state)
+        board_size = self.BOARD_SIZE
 
         features = [1, 2, 0] if player2_rep_as_2 else [1, -1, 0]
         for feat in features:
-            state_list = [1 if state[tile] == feat else 0 for tile in range(size)]
-            final_matrix.append(self.unflatten_state(state_list))
+            x = np.where(state == feat, 1, 0)
+            final_matrix.append(x)
 
-        features = [1, 2] if player2_rep_as_2 else [1, -1]
-        for feat in features:
-            turn_list = [1 if turn == feat else 0 for i in range(size)]
-            final_matrix.append(self.unflatten_state(turn_list))
+        if turn == 1:
+            final_matrix.append(np.ones((board_size, board_size)))
+            final_matrix.append(np.zeros((board_size, board_size)))
+        else:
+            final_matrix.append(np.zeros((board_size, board_size)))
+            final_matrix.append(np.ones((board_size, board_size)))
 
-        final_matrix = np.rollaxis(np.array(final_matrix), 0, 3)
-        return np.array(final_matrix)
-
-    def build_normal(self) -> ks.models.Sequential:
-        """
-        Method for building a standard sequential model. Can be used with NIM or other games as well.
-        Parameters:
-            None
-        Returns:
-            ks.models.Sequential
-        """
-        model = ks.models.Sequential()
-        hidden_dense = self.HIDDEN_LAYERS[0]
-
-        model.add(
-            ks.layers.Input(
-                shape=(self.INPUT_SIZE,),
-            )
-        )
-        for i in range(len(hidden_dense)):
-            dim = hidden_dense[i]
-            model.add(
-                ks.layers.Dense(
-                    dim,
-                    activation=self.ACTIVATION,
-                    kernel_initializer="glorot_uniform",
-                    bias_initializer="zeros",
-                )
-            )
-
-        model.add(
-            ks.layers.Dense(
-                self.OUTPUT_SIZE,
-                activation="softmax",
-            )
-        )
-
-    def build_conv_model(self) -> ks.models.Sequential:
-        """
-        Method for building a sequential convolutional network
-        Parameters:
-            None
-        Returns:
-            ks.models.Sequential
-        """
-        activ = eval("ks.activations." + self.ACTIVATION)
-        hidden_dense, hidden_conv = self.HIDDEN_LAYERS
-
-        ##############################
-        #                            #
-        #   Based on AlphaGo paper   #
-        #                            #
-        ##############################
-        model = ks.models.Sequential()
-        model.add(
-            ks.layers.Input(
-                shape=(self.BOARD_SIZE, self.BOARD_SIZE, 5),
-            )
-        )
-        model.add(
-            ks.layers.Conv2D(
-                hidden_conv[0],
-                kernel_size=(5, 5),
-                padding="same",
-                kernel_regularizer=ks.regularizers.l2(0.01),
-            )
-        )
-        model.add(ks.layers.BatchNormalization(axis=1))
-        model.add(ks.layers.Activation(activ))
-
-        for i in range(1, len(hidden_conv)):
-            units = hidden_conv[i]
-            model.add(
-                ks.layers.Conv2D(
-                    units,
-                    kernel_size=(3, 3),
-                    padding="same",
-                    kernel_regularizer=ks.regularizers.l2(0.01),
-                )
-            )
-            model.add(ks.layers.BatchNormalization(axis=1))
-            model.add(ks.layers.Activation(activ))
-
-        model.add(
-            ks.layers.Conv2D(
-                1,
-                kernel_size=(1, 1),
-                kernel_regularizer=ks.regularizers.l2(0.01),
-            )
-        )
-        model.add(ks.layers.Flatten())
-        model.add(ks.layers.Softmax())
-
-        return model
+        return np.rollaxis(np.array(final_matrix), 0, 3)

@@ -27,7 +27,7 @@ game_configs = {
 MCTS_config = {
     "UCT_C": 1.3,  # float: Variable for weighting the Upper Confidence Bound for Tree
     "MAX_TIME": 1.5,  # float: Variable for controlling how much time the algorithm is allowed to spend (seconds) (overwritten by MIN_SIMS)
-    "MIN_SIMS": 1000,  # int: How many simulations per move at minimum
+    "MIN_SIMS": 2000,  # int: How many simulations per move at minimum
     "KEEP_SUBTREE": True,  # bool: Specify if to keep the subtree after update
 }
 
@@ -36,7 +36,7 @@ save_hex = (
 )
 save_nim = f"_nim_{game_configs['nim']['STONES']}_{game_configs['nim']['MIN_STONES']}_{game_configs['nim']['MAX_STONES']}_"
 RLLearner_config = {
-    "EPISODES": 2000,  # int: Specify the number of actual games to run
+    "EPISODES": 1000,  # int: Specify the number of actual games to run
     "BUFFER_SIZE": 2048,  # int: Specify the size of the replay buffer
     "MINIBATCH_SIZE": 256,  # int: Specify the number of samples to be retrived from the buffer
     "SAVE": True,  # bool: Specify to save nets or not
@@ -54,9 +54,13 @@ ANET_config = {
     "EPSILON_DECAY": 0.99,  # float: Variable for choosing how fast epsilon should decay
     "MIN_EPSILON": 0.1,  # float: minimum for epsilon
     "LEARNING_RATE": 0.001,  # float: Learning rate (None: Default learning rate)
+    # After EPISODES_BEFORE_LR_RED: LR -> LR * (LR_SCALE_FACTOR ** EpNr)
+    "EPISODES_BEFORE_LR_RED": 50,  # int: Number of episodes before LR is scaled with a factor
+    "LR_SCALE_FACTOR": 0.998,  # float: Factor to scale LR with (1 -> keep the same) #0.993 for α = 0.005, 0.998 for α = 0.001
+    "MIN_LR": 0.0001,  # float: Minimum LR
     "HIDDEN_LAYERS": (
-        (128,),
-        (64, 64, 64),
+        (128, 64),
+        (64, 64, 64, 64, 64),
     )  # tuple: [0] Dense layers; [1] Conv2D layers
     if config["GAME"] == "hex"
     else ((32, 32),),  # tuple: Size of hidden layers
@@ -72,10 +76,6 @@ ANET_config = {
             "hex",  # Add other games here if nn should modify state
         ]
     ),  # bool: Specify if we should change state representation from 2 to -1
-    # After EPISODES_BEFORE_LR_RED: LR -> LR * (LR_SCALE_FACTOR ** EpNr)
-    "EPISODES_BEFORE_LR_RED": 50,  # int: Number of episodes before LR is scaled with a factor
-    "LR_SCALE_FACTOR": 0.998,  # float: Factor to scale LR with (1 -> keep the same) #0.993 for α = 0.005, 0.998 for α = 0.001
-    "MIN_LR": 0.0001,  # float: Minimum LR
 }
 
 TOPP_config = {
