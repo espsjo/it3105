@@ -41,7 +41,7 @@ def play(n_games, name, human=True, net_player=1) -> None:
                     World.get_state(flatten=True, include_turn=True),
                     World.get_legal_moves(),
                 )
-                x = [(f"{n}: {str(round(i, 2))}") for n, i in enumerate(x)]
+                x = [(f"{n}: {str(round(i, 4))}") for n, i in enumerate(x)]
                 print(x)
 
                 move = actor.get_action(
@@ -55,7 +55,7 @@ def play(n_games, name, human=True, net_player=1) -> None:
                 else:
                     i = 0
                     t = time.time()
-                    while (i < 1000) and (time.time() - t < 3):
+                    while (i < 2000) and (time.time() - t < 3):
                         m.itr()
                         i += 1
                     norm, moves = m.norm_distr()
@@ -70,4 +70,4 @@ def play(n_games, name, human=True, net_player=1) -> None:
 
 
 if __name__ == "__main__":
-    play(n_games=5, name="7x7/PRAY_hex_7x7_1", human=False, net_player=1)
+    play(n_games=5, name="7x7/PRAY/PRAY_hex_7x7_5", human=False, net_player=2)
