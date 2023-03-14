@@ -153,8 +153,10 @@ if __name__ == "__main__":
         names = list(stats.keys())
         num = np.arange(len(names))
         stat = [i[1] for i in stats.values()]
+        games = np.average([i[0] for i in stats.values()])
         plt.figure(figsize=(13, 8))
         plt.bar(num, stat, alpha=0.5)
+        plt.axhline(y=games, color="g", linestyle="-")
         new_names = [re.sub("(.{10})", "\\1\n", label, 0, re.DOTALL) for label in names]
         plt.xticks(num, new_names, rotation="vertical")
         plt.margins(0.2)

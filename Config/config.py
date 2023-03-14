@@ -42,7 +42,7 @@ RLLearner_config = {
     "SAVE": True,  # bool: Specify to save nets or not
     "SAVE_INTERVAL": 50,  # int: Save the target policy at each x episodes
     "SAVE_PATH": "Models/ModelCache",  # str: Path to save nets to
-    "SAVE_NAME": "PRAY"
+    "SAVE_NAME": "LETSGO"
     + (save_hex if config["GAME"] == "hex" else save_nim),  # str: Name for saved models
     "TRAIN_UI": False,  # bool: Specify if UI on while training
     "GREEDY_BIAS": 0.2,  # float: A bias to if the RLLearner should choose greedy or 2,3 best (1 -> Always choose best; -1 -> Never choose best)

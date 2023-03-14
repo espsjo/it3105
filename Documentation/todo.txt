@@ -1,5 +1,7 @@
 TODO:
-    - Tournament (NOT STARTED)
+    - (Critic)
+    - OHT
+    - Multithreading
     - Restructuring and removing redundant code
 
 COMPLETE:
@@ -16,3 +18,4 @@ COMPLETE:
         - RL Learner (COMPLETE)
         - Actor (COMPLETE)
         - Saving and loading NNs (COMPLETE)
+    - Tournament (COMPLETE)
