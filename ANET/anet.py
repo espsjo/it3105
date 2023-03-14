@@ -22,7 +22,6 @@ class ANET:
         self.MODIFY_STATE = ANET_config["MODIFY_STATE"]
         self.Environment = Environment
         self.history = []
-        self.TEMPERATURE = ANET_config["TEMPERATURE"]
         self.EPISODES_BEFORE_LR_RED = ANET_config["EPISODES_BEFORE_LR_RED"]
         self.LR_SCALE_FACTOR = ANET_config["LR_SCALE_FACTOR"]
         self.MIN_LR = ANET_config["MIN_LR"]
@@ -89,16 +88,18 @@ class ANET:
         """
         Trains the model on a minibatch of cases
         Parameters:
-            minibatch: (list) A minibatch of cases to train network on (x: state, y: target)
+            minibatch: (list) A minibatch of cases to train network on (x: state, y: target, y_crit: target eval)
             epnr: (int) The current episode number
         Returns:
             None
         """
         self.epnr = epnr
-        x, y = zip(*minibatch)
+        # Load data
+        x, y, y_crit = zip(*minibatch)
 
+        # Callbacks
         callback = ks.callbacks.EarlyStopping(
-            monitor="val_loss", patience=4, min_delta=0.001
+            monitor="val_loss", patience=3, min_delta=0.001
         )
 
         def scheduler(epoch, lr):
@@ -111,22 +112,21 @@ class ANET:
 
         lrs = tf.keras.callbacks.LearningRateScheduler(scheduler)
 
+        # State augmentation
         if self.MODIFY_STATE:
             x = [self.modify_state(i) for i in x]
 
-        x = [self.convolute(s, player2_rep_as_2=not self.MODIFY_STATE) for s in x]
+        if self.BUILD_CONV:
+            x = [self.convolute(s, player2_rep_as_2=not self.MODIFY_STATE) for s in x]
 
-        if self.TEMPERATURE != None:
-            y = [i ** (1 / self.TEMPERATURE) for i in y]
-            y = [i / sum(y) for i in y]
-
+        # Training
         hist = self.model.fit(
             np.array(x),
             np.array(y),
             batch_size=self.BATCH_SIZE,
             epochs=self.EPOCHS,
             callbacks=[callback, lrs],
-            validation_split=0.25,
+            validation_split=0.3,
         )
         self.history.append(hist)
 
@@ -167,7 +167,8 @@ class ANET:
 
         if self.MODIFY_STATE:
             state = self.modify_state(state)
-        state = self.convolute(state, player2_rep_as_2=not self.MODIFY_STATE)
+        if self.BUILD_CONV:
+            state = self.convolute(state, player2_rep_as_2=not self.MODIFY_STATE)
 
         if litemodel != None:
             pred = litemodel.predict_single(state)
@@ -308,8 +309,6 @@ class ANET:
                     bias_initializer="zeros",
                 )
             )
-            # if i + 1 != len(hidden_dense):
-            #     model.add(ks.layers.Dropout(0.5))
 
         model.add(
             ks.layers.Dense(
@@ -329,23 +328,26 @@ class ANET:
         activ = eval("ks.activations." + self.ACTIVATION)
         hidden_dense, hidden_conv = self.HIDDEN_LAYERS
 
+        ##############################
+        #                            #
+        #   Based on AlphaGo paper   #
+        #                            #
+        ##############################
         model = ks.models.Sequential()
-
         model.add(
             ks.layers.Input(
                 shape=(self.BOARD_SIZE, self.BOARD_SIZE, 5),
             )
         )
-
         model.add(
             ks.layers.Conv2D(
                 hidden_conv[0],
-                kernel_size=(3, 3),
-                input_shape=(self.BOARD_SIZE, self.BOARD_SIZE, 5),
+                kernel_size=(5, 5),
                 padding="same",
+                kernel_regularizer=ks.regularizers.l2(0.01),
             )
         )
-        model.add(ks.layers.BatchNormalization())
+        model.add(ks.layers.BatchNormalization(axis=1))
         model.add(ks.layers.Activation(activ))
 
         for i in range(1, len(hidden_conv)):
@@ -354,28 +356,21 @@ class ANET:
                 ks.layers.Conv2D(
                     units,
                     kernel_size=(3, 3),
-                    activation=self.ACTIVATION,
                     padding="same",
+                    kernel_regularizer=ks.regularizers.l2(0.01),
                 )
             )
-            if i != len(hidden_conv) - 1:
-                model.add(ks.layers.BatchNormalization())
-        model.add(ks.layers.MaxPooling2D(pool_size=(2, 2), padding="same"))
-        model.add(ks.layers.Dropout(0.4))
+            model.add(ks.layers.BatchNormalization(axis=1))
+            model.add(ks.layers.Activation(activ))
 
+        model.add(
+            ks.layers.Conv2D(
+                1,
+                kernel_size=(1, 1),
+                kernel_regularizer=ks.regularizers.l2(0.01),
+            )
+        )
         model.add(ks.layers.Flatten())
-
-        for i in range(len(hidden_dense)):
-            dim = hidden_dense[i]
-            model.add(
-                ks.layers.Dense(
-                    dim,
-                    activation=self.ACTIVATION,
-                    kernel_initializer="glorot_uniform",
-                    bias_initializer="zeros",
-                )
-            )
-
-        model.add(ks.layers.Dense(self.OUTPUT_SIZE, activation="softmax"))
+        model.add(ks.layers.Softmax())
 
         return model

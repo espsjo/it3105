@@ -78,6 +78,7 @@ class RLLearner:
             # Varying player start and reseting envs
             # player = np.random.choice([1, 2])
             player = 1
+            temp_rbuf = []
 
             self.simworld.reset_states(player_start=player)
             self.mcts_world.reset_states(player_start=player)
@@ -103,16 +104,9 @@ class RLLearner:
                 # Retriving normal distributions as well as indexes of corresponding moves
                 norm_distr, corr_moves = monte_carlo.norm_distr()
                 state = self.simworld.get_state(flatten=True, include_turn=True)
-                # Creating a case
-                rbuf_case = (state, np.array(norm_distr))
 
-                # Keeping a fixed size rbuf
-                if self.rbuf_index < self.BUFFER_SIZE:
-                    rbuf.append(rbuf_case)
-                else:
-                    ind = self.rbuf_index % self.BUFFER_SIZE
-                    rbuf[ind] = rbuf_case
-                self.rbuf_index += 1
+                rbuf_case = [state, np.array(norm_distr), 0]
+                temp_rbuf.append(rbuf_case)
 
                 # Finds the 3 max indexes
                 ind = np.argpartition(norm_distr, -3)[-3:]
@@ -130,15 +124,25 @@ class RLLearner:
                     if r <= 0:
                         move = corr_moves[ind[i]]
                         break
-                # Choosing and playing move
-                # move = corr_moves[norm_distr.index(max(norm_distr))]
 
                 moved = self.simworld.play_move(move)
                 monte_carlo.mcts_move(move)
                 if self.TRAIN_UI and moved:
                     self.GUI.visualize_move(self.simworld, move)
 
-            # Sampling a minibatch
+            # Get reward, add to training case
+            r = self.simworld.get_reward(player=player)
+            for i in range(len(temp_rbuf)):
+                temp_rbuf[i][2] = r
+                # Keeping a fixed size rbuf
+                if self.rbuf_index < self.BUFFER_SIZE:
+                    rbuf.append(temp_rbuf[i])
+                else:
+                    ind = self.rbuf_index % self.BUFFER_SIZE
+                    rbuf[ind] = temp_rbuf[i]
+                self.rbuf_index += 1
+
+            # Sampling a minibatch of cases: (x: state, y: target_distr, y_crit: target_eval)
             mbatch = random.sample(rbuf, min(len(rbuf), self.MINIBATCH_SIZE))
             self.actor.train(mbatch, eps)
             self.actor.epsilon_decay()

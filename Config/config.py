@@ -37,7 +37,7 @@ save_hex = (
 save_nim = f"_nim_{game_configs['nim']['STONES']}_{game_configs['nim']['MIN_STONES']}_{game_configs['nim']['MAX_STONES']}_"
 RLLearner_config = {
     "EPISODES": 2000,  # int: Specify the number of actual games to run
-    "BUFFER_SIZE": 1024,  # int: Specify the size of the replay buffer
+    "BUFFER_SIZE": 2048,  # int: Specify the size of the replay buffer
     "MINIBATCH_SIZE": 256,  # int: Specify the number of samples to be retrived from the buffer
     "SAVE": True,  # bool: Specify to save nets or not
     "SAVE_INTERVAL": 50,  # int: Save the target policy at each x episodes
@@ -55,16 +55,16 @@ ANET_config = {
     "MIN_EPSILON": 0.1,  # float: minimum for epsilon
     "LEARNING_RATE": 0.001,  # float: Learning rate (None: Default learning rate)
     "HIDDEN_LAYERS": (
-        (100, 64),
-        (32, 64, 64),
-    )  # tuple: [0] Dense layers (only one used in normal nets), [1] conv2d layers
+        (128,),
+        (64, 64, 64),
+    )  # tuple: [0] Dense layers; [1] Conv2D layers
     if config["GAME"] == "hex"
-    else (32, 32),  # tuple: Size of hidden layers
+    else ((32, 32),),  # tuple: Size of hidden layers
     "ACTIVATION": "relu",  # str: relu, tanh, sigmoid, selu
     "OPTIMIZER": "Adam",  # str: SGD, Adagrad, Adam, RMSprop
     "LOSS_FUNC": "kl_divergence",  # str: categorical_crossentropy, kl_divergence, mse
-    "EPOCHS": 10,  # int: Epochs to run each fit
-    "BATCH_SIZE": 16,  # int: Number of batches to use in fitting
+    "EPOCHS": 5,  # int: Epochs to run each fit
+    "BATCH_SIZE": 32,  # int: Number of batches to use in fitting
     "LOAD_PATH": "Models/Stored",  # str: Folder to load models from
     "MODIFY_STATE": (
         config["GAME"]
@@ -72,16 +72,15 @@ ANET_config = {
             "hex",  # Add other games here if nn should modify state
         ]
     ),  # bool: Specify if we should change state representation from 2 to -1
-    "TEMPERATURE": None,  # float: A temperature to encode the target values with (None / 1 to do nothing)
     # After EPISODES_BEFORE_LR_RED: LR -> LR * (LR_SCALE_FACTOR ** EpNr)
     "EPISODES_BEFORE_LR_RED": 50,  # int: Number of episodes before LR is scaled with a factor
-    "LR_SCALE_FACTOR": 0.993,  # float: Factor to scale LR with (1 -> keep the same) #0.993 for α = 0.005, 0.998 for α = 0.001
+    "LR_SCALE_FACTOR": 0.998,  # float: Factor to scale LR with (1 -> keep the same) #0.993 for α = 0.005, 0.998 for α = 0.001
     "MIN_LR": 0.0001,  # float: Minimum LR
 }
 
 TOPP_config = {
     "LOAD_PATH": "Models/TOPP",  # str: Folder to load models from
-    "GAMES": 20,  # int: Games to play against each other player
+    "GAMES": 6,  # int: Games to play against each other player (Even number)
     "PLOT_STATS": True,  # bool: To plot the final stats or not
     "TOPP_UI": False,  # bool: Toggle UI during TOPP
     "PROBABILISTIC": True,  # bool: If always choosing the best move or not
