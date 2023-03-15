@@ -49,7 +49,7 @@ class MCTS:
             self.root = self.root.children[move]
             self.root.parent = None
 
-    def itr(self, actor=None, litemodel=None):
+    def itr(self, actor=None, litemodel=None, greedy=False):
         """
         Runs one iteration of MCTS
         Parameters:
@@ -60,7 +60,7 @@ class MCTS:
         """
         current, world = self.search()
         current, world = self.expand(current, world)
-        world = self.rollout(world, actor, litemodel)
+        world = self.rollout(world, actor, litemodel, greedy)
         self.backprop(current, world)
 
     def search(self):
@@ -113,7 +113,7 @@ class MCTS:
         return current, world
 
     def rollout(
-        self, world: SimWorldAbs, actor: ANET, litemodel: LiteModel
+        self, world: SimWorldAbs, actor: ANET, litemodel: LiteModel, greedy: bool
     ) -> SimWorldAbs:
         """
         Rollout on the child given
@@ -130,7 +130,7 @@ class MCTS:
             if actor != None:
                 state = world.get_state(flatten=True, include_turn=True)
                 action = actor.get_action(
-                    state, legal_moves, choose_greedy=False, litemodel=litemodel
+                    state, legal_moves, choose_greedy=greedy, litemodel=litemodel
                 )
             else:
                 action = int(np.random.choice(legal_moves))

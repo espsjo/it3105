@@ -66,10 +66,10 @@ ANET_config = {
     else ((32, 32),),  # tuple: Size of hidden layers
     "ACTIVATION": "relu",  # str: relu, tanh, sigmoid, selu
     "OPTIMIZER": "Adam",  # str: SGD, Adagrad, Adam, RMSprop
-    "LOSS_FUNC": "categorical_crossentropy",  # str: categorical_crossentropy, kl_divergence, mse
+    "LOSS_FUNC": "kl_divergence",  # str: categorical_crossentropy, kl_divergence, mse
     "EPOCHS": 5,  # int: Epochs to run each fit
-    "REGULARIZATION_CONST": 0.0001,  # float: L2 Reg const in CNN
-    "EARLY_STOP_PAT": 2,  # int: Early stopping patience
+    "REGULARIZATION_CONST": 0.001,  # float: L2 Reg const in CNN
+    "EARLY_STOP_PAT": 3,  # int: Early stopping patience
     "BATCH_SIZE": 32,  # int: Number of batches to use in fitting
     "LOAD_PATH": "Models/Stored",  # str: Folder to load models from
     "MODIFY_STATE": (
@@ -85,6 +85,6 @@ TOPP_config = {
     "GAMES": 6,  # int: Games to play against each other player (Even number)
     "PLOT_STATS": True,  # bool: To plot the final stats or not
     "TOPP_UI": False,  # bool: Toggle UI during TOPP
-    "PROBABILISTIC": True,  # bool: If always choosing the best move or not
+    "PROBABILISTIC": False,  # bool: If always choosing the best move or not
     "GREEDY_BIAS": 0.3,  # float: Bias towards choosing the best move in probabilistic reasoning (0.3 -> Always choose best if >70% certain)
 }
