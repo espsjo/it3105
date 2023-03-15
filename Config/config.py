@@ -66,8 +66,10 @@ ANET_config = {
     else ((32, 32),),  # tuple: Size of hidden layers
     "ACTIVATION": "relu",  # str: relu, tanh, sigmoid, selu
     "OPTIMIZER": "Adam",  # str: SGD, Adagrad, Adam, RMSprop
-    "LOSS_FUNC": "kl_divergence",  # str: categorical_crossentropy, kl_divergence, mse
+    "LOSS_FUNC": "categorical_crossentropy",  # str: categorical_crossentropy, kl_divergence, mse
     "EPOCHS": 5,  # int: Epochs to run each fit
+    "REGULARIZATION_CONST": 0.0001,  # float: L2 Reg const in CNN
+    "EARLY_STOP_PAT": 2,  # int: Early stopping patience
     "BATCH_SIZE": 32,  # int: Number of batches to use in fitting
     "LOAD_PATH": "Models/Stored",  # str: Folder to load models from
     "MODIFY_STATE": (

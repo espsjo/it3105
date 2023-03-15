@@ -30,6 +30,7 @@ class ANET:
         self.LEARNING_RATE = ANET_config["LEARNING_RATE"]
         self.EPOCHS = ANET_config["EPOCHS"]
         self.BATCH_SIZE = ANET_config["BATCH_SIZE"]
+        self.EARLY_STOP_PAT = ANET_config["EARLY_STOP_PAT"]
 
         self.ALL_MOVES = self.Environment.get_actions()
         self.epnr = 0
@@ -76,7 +77,7 @@ class ANET:
 
         # Callbacks
         callback = ks.callbacks.EarlyStopping(
-            monitor="val_loss", patience=3, min_delta=0.001
+            monitor="val_loss", patience=self.EARLY_STOP_PAT, min_delta=0.001
         )
 
         def scheduler(epoch, lr):

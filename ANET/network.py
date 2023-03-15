@@ -19,6 +19,7 @@ class Network:
         self.ACTIVATION = ANET_config["ACTIVATION"]
         self.OPTIMIZER = ANET_config["OPTIMIZER"]
         self.LOSS_FUNC = ANET_config["LOSS_FUNC"]
+        self.REGULARIZATION_CONST = ANET_config["REGULARIZATION_CONST"]
 
         if self.LEARNING_RATE is None:
             self.optimizers = {
@@ -110,7 +111,7 @@ class Network:
                 hidden_conv[0],
                 kernel_size=(5, 5),
                 padding="same",
-                # kernel_regularizer=ks.regularizers.l2(0.01),
+                kernel_regularizer=ks.regularizers.l2(self.REGULARIZATION_CONST),
             )
         )
         model.add(ks.layers.BatchNormalization(axis=1))
@@ -123,7 +124,7 @@ class Network:
                     units,
                     kernel_size=(3, 3),
                     padding="same",
-                    kernel_regularizer=ks.regularizers.l2(0.01),
+                    kernel_regularizer=ks.regularizers.l2(self.REGULARIZATION_CONST),
                 )
             )
             model.add(ks.layers.BatchNormalization(axis=1))
@@ -133,7 +134,7 @@ class Network:
             ks.layers.Conv2D(
                 1,
                 kernel_size=(1, 1),
-                kernel_regularizer=ks.regularizers.l2(0.01),
+                # kernel_regularizer=ks.regularizers.l2(self.REGULARIZATION_CONST),
             )
         )
         model.add(ks.layers.Flatten())
@@ -142,7 +143,7 @@ class Network:
         model.compile(
             optimizer=self.optimizers[self.OPTIMIZER],
             loss=self.LOSS_FUNC,
-            metrics=[tf.keras.metrics.categorical_accuracy],
+            metrics=[tf.keras.metrics.categorical_accuracy, "KLDivergence"],
         )
         self.model = model
         self.model.summary()
