@@ -75,9 +75,11 @@ class RLLearner:
 
         for eps in range(self.EPISODES):
             print(f"\nEPISODE: {eps+1}; EPSILON: {self.actor.epsilon}")
-            # Varying player start and reseting envs
-            # player = np.random.choice([1, 2])
-            player = 1
+
+            # Varying player start and reseting envs (GOOD RESULTS WITHOUT, BUT SHOULD PROBABLY BE DONE)
+            player = np.random.choice([1, 2])
+            # player = 1
+
             temp_rbuf = []
 
             self.simworld.reset_states(player_start=player)

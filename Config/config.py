@@ -1,3 +1,6 @@
+import os
+from dotenv import dotenv_values
+
 """
 File containg all parameters deemed necessary to be easily accessible.
 Some parameters in how the program operates are fixed, but the most significant can be changed here. 
@@ -87,4 +90,20 @@ TOPP_config = {
     "TOPP_UI": False,  # bool: Toggle UI during TOPP
     "PROBABILISTIC": True,  # bool: If always choosing the best move or not
     "GREEDY_BIAS": 0.3,  # float: Bias towards choosing the best move in probabilistic reasoning (0.3 -> Always choose best if >70% certain)
+}
+secrets = dotenv_values("Config/secret.env")
+
+OHT_config = {
+    "GAME": "hex",  # str: Override config
+    "BOARD_SIZE": 7,  # int: Override game_config for hex
+    "LOAD_PATH": "Models/OHT",  # str: Where to load model from
+    "MODEL_NAME": "LETSGO_hex_7x7_8",  # str: Name of model to load
+    "EPSILON": 0,  # float: Epsilon, if we for some reason wanted to choose random moves
+    "UI_ON": False,  # bool: If UI should be on
+    ################
+    ##   DANGER   ##
+    ################
+    "AUTH": secrets["AUTH"],  # str: Certificate
+    "QUALIFY": False,  # bool: To qualify or not (3 attempts left)
+    "MODE": "qualifiers",  # str: qualifiers, league
 }

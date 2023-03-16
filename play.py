@@ -11,7 +11,7 @@ Returns void
 """
 
 
-def play(n_games, name, human=True, net_player=1) -> None:
+def play(n_games, name, human=True, net_player=1, player_start=1) -> None:
     """
     Carries out the game
     Paramters:
@@ -28,10 +28,10 @@ def play(n_games, name, human=True, net_player=1) -> None:
     actor = ANET(ANET_config=ANET_config, Environment=World, model_name=name)
 
     for _ in range(n_games):
-        World.reset_states(player_start=1)
+        World.reset_states(player_start)
         if not human:
-            mcts_env.reset_states(player_start=1)
-            m = MCTS(MCTS_config, mcts_env, player=1)
+            mcts_env.reset_states(player_start)
+            m = MCTS(MCTS_config, mcts_env, player=player_start)
 
         if GUI:
             GUI.visualize_move(World)
@@ -71,4 +71,10 @@ def play(n_games, name, human=True, net_player=1) -> None:
 
 
 if __name__ == "__main__":
-    play(n_games=5, name="7x7/LETSGO/LETSGO_hex_7x7_8", human=True, net_player=1)
+    play(
+        n_games=5,
+        name="7x7/LETSGO/LETSGO_hex_7x7_8",
+        human=True,
+        net_player=1,
+        player_start=2,
+    )

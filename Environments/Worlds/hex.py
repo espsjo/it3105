@@ -166,7 +166,7 @@ class Hex(SimWorldAbs):
         """
         if state is None:
             return self.legal_moves
-        state = self.flatten_state(state)
+        state = np.array(self.flatten_state(state))
         return np.where(state == 0)[0]
 
     def is_won(self) -> bool:
@@ -334,6 +334,8 @@ class Hex(SimWorldAbs):
             self.state = self.unflatten_state(state)
         else:
             self.state = state
+
+        self.legal_moves = self.get_legal_moves(state)
 
     def set_player(self, player: int) -> None:
         """

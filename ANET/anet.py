@@ -95,7 +95,10 @@ class ANET:
             x = [self.modify_state(i) for i in x]
 
         if self.BUILD_CONV:
-            l = [[s[0], self.unflatten_state(s[1:])] for s in x]
+            l = [
+                [s[0], np.array(s[1:]).reshape(self.BOARD_SIZE, self.BOARD_SIZE)]
+                for s in x
+            ]
             x = [
                 self.convolute(tup[1], tup[0], player2_rep_as_2=not self.MODIFY_STATE)
                 for tup in l
@@ -146,12 +149,11 @@ class ANET:
         Returns:
             np.ndarray
         """
-
         if self.MODIFY_STATE:
             state = self.modify_state(state)
         if self.BUILD_CONV:
             turn = state[0]
-            state = self.unflatten_state(state[1:])
+            state = np.array(state[1:]).reshape(self.BOARD_SIZE, self.BOARD_SIZE)
             state = self.convolute(state, turn, player2_rep_as_2=not self.MODIFY_STATE)
 
         if litemodel != None:
