@@ -134,7 +134,6 @@ class Network:
             ks.layers.Conv2D(
                 1,
                 kernel_size=(1, 1),
-                # kernel_regularizer=ks.regularizers.l2(self.REGULARIZATION_CONST),
             )
         )
         model.add(ks.layers.Flatten())

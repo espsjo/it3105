@@ -10,11 +10,12 @@ learn 0.001
 
 #Conv
 
-64,64,64 Conv2d
-Batch normalization
+64,64,64,64,64s Conv2d
+Batch normalization (before activation)
 Adam
-kl_divergence
+categorical_crossentropy
 relu
 learn 0.001
 No dropout
+kernel_regularizer on every layer except last
 Straight to softmax from conv2d (1,(1,1))
