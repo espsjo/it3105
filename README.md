@@ -15,4 +15,5 @@ The model scored a 100/100 in the Online Hex Tournament (OHT).
 (Certificates to play in OHT have been omitted)
 
 # Visualization of a game
+### Model playing as red
 ![](https://github.com/espsjo/it3105/blob/main/Documentation/visualization.gif)
