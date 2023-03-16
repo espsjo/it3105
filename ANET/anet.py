@@ -102,7 +102,9 @@ class ANET:
                 for s in x
             ]
             x = [
-                self.convolute(tup[1], tup[0], player2_rep_as_2=not self.MODIFY_STATE)
+                self.modify_for_CNN(
+                    tup[1], tup[0], player2_rep_as_2=not self.MODIFY_STATE
+                )
                 for tup in l
             ]
 
@@ -156,7 +158,9 @@ class ANET:
         if self.BUILD_CONV:
             turn = state[0]
             state = np.array(state[1:]).reshape(self.BOARD_SIZE, self.BOARD_SIZE)
-            state = self.convolute(state, turn, player2_rep_as_2=not self.MODIFY_STATE)
+            state = self.modify_for_CNN(
+                state, turn, player2_rep_as_2=not self.MODIFY_STATE
+            )
 
         if litemodel != None:
             pred = litemodel.predict_single(state)
@@ -251,9 +255,9 @@ class ANET:
         """
         return np.array([i if i != 2 else -1 for i in x])
 
-    def convolute(self, state, turn, player2_rep_as_2: bool = False):
+    def modify_for_CNN(self, state, turn, player2_rep_as_2: bool = False):
         """
-        Method for convoluting a board game state. Layer 0/1/2 are tiles occupied by player1/player2/empty.
+        Method for modifying a board game state. Layer 0/1/2 are tiles occupied by player1/player2/empty.
         Layer 3/4 represent whose turn it is.
         Rolls the axis to correct dimensions.
         Returns a Board_size x Board_size x 5 array
