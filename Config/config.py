@@ -61,7 +61,7 @@ ANET_config = {
     if config["GAME"] == "hex"
     else ((128, 64, 32),),  # tuple: Size of hidden layers
     ##################################################
-    "BUILD_CONV": False,  # bool: To build a convolutional model or "normal". Built specifically for Hex (or any square two player board game)
+    "BUILD_CONV": True,  # bool: To build a convolutional model or "normal". Built specifically for Hex (or any square two player board game)
     "EPSILON": 1,  # float: Variable for choosing a random move compared to the greedy best move
     "EPSILON_DECAY": 0.99,  # float: Variable for choosing how fast epsilon should decay
     "MIN_EPSILON": 0.1,  # float: minimum for epsilon

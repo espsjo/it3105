@@ -18,7 +18,8 @@ def play(n_games, name, human=True, net_player=1, player_start=1) -> None:
         n_games: (int) Games to be played
         name: (str) Model name to load
         human: (bool) If net should play against human or MCTS
-        net_player1: (bool) If the net should be player 1
+        net_player: (int) What player the net should be
+        player_start: (int) What player should start
     """
     World = SimWorld(config, game_configs, simulator=False).get_world()
     UI_ON = config["UI_ON"]
@@ -73,7 +74,7 @@ def play(n_games, name, human=True, net_player=1, player_start=1) -> None:
 if __name__ == "__main__":
     play(
         n_games=5,
-        name="",
+        name="7x7/LETSGO/LETSGO_hex_7x7_8",
         human=True,
         net_player=1,
         player_start=1,
