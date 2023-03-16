@@ -1,8 +1,8 @@
 TODO:
-    - (Critic)
-    - OHT
-    - Multithreading (Specifically MCTS process)
-    - Restructuring and removing redundant code
+    Probably will not happen, but would improve a lot:
+        - (Critic)
+        - (Multithreading (Specifically MCTS process))
+    - Restructuring and removing redundant code (Will hopefully be done)
 
 COMPLETE:
     - MCTS (COMPLETE) ((BUT NEEDS SOME WORK))
@@ -19,3 +19,4 @@ COMPLETE:
         - Actor (COMPLETE)
         - Saving and loading NNs (COMPLETE)
     - Tournament (COMPLETE)
+    - OHT

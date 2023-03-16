@@ -1,21 +1,14 @@
-Best config yet:
+Best config yet (HEX):
 
-Layers 48,32
-One dropout inbetween 0.1/0.2
-No batch normalization
-Adam
-kl_divergence
-relu
-learn 0.001
-
-#Conv
-
-64,64,64,64,64s Conv2d
+64,64,64,64,64 Conv2d
 Batch normalization (before activation)
 Adam
 categorical_crossentropy
 relu
 learn 0.001
+lr scale 0.998
+min lr 0.0001
+batch size 32
 No dropout
 kernel_regularizer on every layer except last
 Straight to softmax from conv2d (1,(1,1))
