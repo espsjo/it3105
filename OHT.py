@@ -48,7 +48,8 @@ class OHT(ActorClient):
 
     def handle_get_action(self, state):
         """
-        Takes in a game state, and lets the actor choose a move
+        Takes in a game state, and lets the actor choose a move.
+        Has to do some state augmentation (transposing board, flipping given move), due to indexing HEX board differently than OHT.
         Parameters:
             state: (list) The game state
         Returns:

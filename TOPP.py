@@ -47,8 +47,9 @@ class TOPP:
                     self.env.get_state(flatten=True, include_turn=True),
                     self.env.get_legal_moves(),
                 )
-                # Finds the 3 max indexes
-                ind = np.argpartition(norm_distr, -5)[-5:]
+                # Finds the 5 or less max indexes
+                x_ind = min(5, len(self.env.get_legal_moves()))
+                ind = np.argpartition(norm_distr, -x_ind)[-x_ind:]
                 # Sorts them
                 ind = ind[np.argsort(np.array(norm_distr)[ind])]
                 ind = np.flip(ind)
@@ -59,7 +60,7 @@ class TOPP:
                 move = corr_moves[ind[0]]
 
                 # Randomly might select max2, max3 to be the new move
-                for i in range(5):
+                for i in range(x_ind):
                     r -= norm_distr[ind[i]] + greedy_bias
                     if r <= 0:
                         move = corr_moves[ind[i]]

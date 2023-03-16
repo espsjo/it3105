@@ -84,7 +84,8 @@ class Network:
 
     def build_conv_model(self, in_size, out_size) -> ks.models.Sequential:
         """
-        Method for building a sequential convolutional network
+        Method for building a sequential convolutional network.
+        Model architecture is based on AlphaGo, but scaled down with regards to hardware and board-size.
         Parameters:
             in_size: (int) The board_size
             out_size: (int) The number of moves (board_size**2)
@@ -92,6 +93,7 @@ class Network:
             ks.models.Sequential
         """
         activ = eval("ks.activations." + self.ACTIVATION)
+        # Retrive dense layers in case it should be added
         hidden_dense, hidden_conv = self.HIDDEN_LAYERS
 
         ##############################

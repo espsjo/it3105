@@ -16,6 +16,7 @@ class ANET:
     """
 
     def __init__(self, ANET_config, Environment: SimWorldAbs, model_name=None):
+        self.ANET_config = ANET_config
         self.EPSILON_DECAY = ANET_config["EPSILON_DECAY"]
         self.epsilon = ANET_config["EPSILON"]
         self.MIN_EPSILON = ANET_config["MIN_EPSILON"]
@@ -41,6 +42,7 @@ class ANET:
 
         if model_name != None:
             self.load(model_name + ".h5")
+
         else:
             self.construct_model(ANET_config=ANET_config)
 
@@ -199,7 +201,31 @@ class ANET:
         Returns:
             None
         """
+        self.LEARNING_RATE = self.ANET_config["LEARNING_RATE"]
+        self.OPTIMIZER = self.ANET_config["OPTIMIZER"]
+        self.LOSS_FUNC = self.ANET_config["LOSS_FUNC"]
+
+        if self.LEARNING_RATE is None:
+            self.optimizers = {
+                "Adam": ks.optimizers.Adam(),
+                "Adagrad": ks.optimizers.Adagrad(),
+                "SGD": ks.optimizers.SGD(),
+                "RMSprop": ks.optimizers.RMSprop(),
+            }
+        else:
+            self.optimizers = {
+                "Adam": ks.optimizers.Adam(learning_rate=self.LEARNING_RATE),
+                "Adagrad": ks.optimizers.Adagrad(learning_rate=self.LEARNING_RATE),
+                "SGD": ks.optimizers.SGD(learning_rate=self.LEARNING_RATE),
+                "RMSprop": ks.optimizers.RMSprop(learning_rate=self.LEARNING_RATE),
+            }
+
         x = tf.keras.models.load_model(f"{self.LOAD_PATH}/{model_name}", compile=False)
+        x.compile(
+            optimizer=self.optimizers[self.OPTIMIZER],
+            loss=self.LOSS_FUNC,
+            metrics=[tf.keras.metrics.categorical_accuracy],
+        )
         self.model = x
 
     def get_history(self) -> list:
@@ -225,28 +251,12 @@ class ANET:
         """
         return np.array([i if i != 2 else -1 for i in x])
 
-    def unflatten_state(self, state):
-        """
-        Method for unflattening state - similar to the one implemented in hex.py
-        Parameters:
-            state: (np.ndarray) List of the state
-        Returns:
-            np.ndarray
-        """
-        board_size = self.BOARD_SIZE
-        s = []
-        r = 0
-        for i in range(board_size):
-            s.append([state[n] for n in range(r, board_size * (i + 1))])
-            r += board_size
-        state = np.array(s)
-        return state
-
     def convolute(self, state, turn, player2_rep_as_2: bool = False):
         """
         Method for convoluting a board game state. Layer 0/1/2 are tiles occupied by player1/player2/empty.
         Layer 3/4 represent whose turn it is.
-        Returns a Board_size x Board_size matrix x 5 array
+        Rolls the axis to correct dimensions.
+        Returns a Board_size x Board_size x 5 array
         Parameters:
             state: (np.ndarray) List of the state including the player turn as the first element
             player2_rep_as_2: (bool) If player two is represented with 2: True, with -1: False

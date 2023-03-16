@@ -356,12 +356,7 @@ class Hex(SimWorldAbs):
         Returns:
             np.ndarray
         """
-        s = []
-        r = 0
-        for i in range(self.board_size):
-            s.append([state[n] for n in range(r, self.board_size * (i + 1))])
-            r += self.board_size
-        return np.array(s)
+        return state.reshape((self.board_size, self.board_size))
 
     def get_board_hist(self) -> np.ndarray:
         """

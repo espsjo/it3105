@@ -1,4 +1,3 @@
-import os
 from dotenv import dotenv_values
 
 """
@@ -7,14 +6,14 @@ Some parameters in how the program operates are fixed, but the most significant 
 """
 
 config = {
-    "GAME": "hex",  # 'hex', 'nim': Game to be played
+    "GAME": "nim",  # 'hex', 'nim': Game to be played
     "UI_ON": True,  # bool: Toggles GUI for Hex, verbose for NIM
 }
 
 game_configs = {
     "hex": {
         "BOARD_SIZE": 7,  # int: Specifies the board size in Hex
-        "ANIMATION_SPEED": 0.5,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
+        "ANIMATION_SPEED": 0.1,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
         "WON_MSG": False,  # bool: Specifies if the winning player should be printed to console (UI_ON does not override)
         "DISPLAY_INDEX": True,  # bool: Specifies if the GUI should display indexes (useful for human play)
     },
@@ -33,11 +32,12 @@ MCTS_config = {
     "MIN_SIMS": 2000,  # int: How many simulations per move at minimum
     "KEEP_SUBTREE": True,  # bool: Specify if to keep the subtree after update
 }
-
+# Helpers
 save_hex = (
     f"_hex_{game_configs['hex']['BOARD_SIZE']}x{game_configs['hex']['BOARD_SIZE']}_"
 )
 save_nim = f"_nim_{game_configs['nim']['STONES']}_{game_configs['nim']['MIN_STONES']}_{game_configs['nim']['MAX_STONES']}_"
+
 RLLearner_config = {
     "EPISODES": 1000,  # int: Specify the number of actual games to run
     "BUFFER_SIZE": 2048,  # int: Specify the size of the replay buffer
@@ -52,7 +52,16 @@ RLLearner_config = {
 }
 
 ANET_config = {
-    "BUILD_CONV": True,  # bool: To build a convolutional model or "normal". Built specifically for Hex (or any square two player board game)
+    ##################################################
+    # Must be tuple of tuples
+    "HIDDEN_LAYERS": (
+        (128, 64),
+        (64, 64, 64, 64, 64),
+    )  # tuple: [0] Dense layers; [1] Conv2D layers
+    if config["GAME"] == "hex"
+    else ((128, 64, 32),),  # tuple: Size of hidden layers
+    ##################################################
+    "BUILD_CONV": False,  # bool: To build a convolutional model or "normal". Built specifically for Hex (or any square two player board game)
     "EPSILON": 1,  # float: Variable for choosing a random move compared to the greedy best move
     "EPSILON_DECAY": 0.99,  # float: Variable for choosing how fast epsilon should decay
     "MIN_EPSILON": 0.1,  # float: minimum for epsilon
@@ -61,12 +70,6 @@ ANET_config = {
     "EPISODES_BEFORE_LR_RED": 50,  # int: Number of episodes before LR is scaled with a factor
     "LR_SCALE_FACTOR": 0.998,  # float: Factor to scale LR with (1 -> keep the same) #0.993 for α = 0.005, 0.998 for α = 0.001
     "MIN_LR": 0.0001,  # float: Minimum LR
-    "HIDDEN_LAYERS": (
-        (128, 64),
-        (64, 64, 64, 64, 64),
-    )  # tuple: [0] Dense layers; [1] Conv2D layers
-    if config["GAME"] == "hex"
-    else ((32, 32),),  # tuple: Size of hidden layers
     "ACTIVATION": "relu",  # str: relu, tanh, sigmoid, selu
     "OPTIMIZER": "Adam",  # str: SGD, Adagrad, Adam, RMSprop
     "LOSS_FUNC": "categorical_crossentropy",  # str: categorical_crossentropy, kl_divergence, mse
@@ -75,12 +78,14 @@ ANET_config = {
     "EARLY_STOP_PAT": 3,  # int: Early stopping patience
     "BATCH_SIZE": 32,  # int: Number of batches to use in fitting
     "LOAD_PATH": "Models/Stored",  # str: Folder to load models from
+    ##########################################################################
     "MODIFY_STATE": (
         config["GAME"]
         in [
             "hex",  # Add other games here if nn should modify state
         ]
     ),  # bool: Specify if we should change state representation from 2 to -1
+    ##########################################################################
 }
 
 TOPP_config = {
@@ -91,8 +96,8 @@ TOPP_config = {
     "PROBABILISTIC": True,  # bool: If always choosing the best move or not
     "GREEDY_BIAS": 0.3,  # float: Bias towards choosing the best move in probabilistic reasoning (0.3 -> Always choose best if >70% certain)
 }
-secrets = dotenv_values("Config/secret.env")
 
+secrets = dotenv_values("Config/secret.env")
 OHT_config = {
     "GAME": "hex",  # str: Override config
     "BOARD_SIZE": 7,  # int: Override game_config for hex
@@ -105,5 +110,5 @@ OHT_config = {
     ################
     "AUTH": secrets["AUTH"],  # str: Certificate
     "QUALIFY": False,  # bool: To qualify or not (3 attempts left)
-    "MODE": "qualifiers",  # str: qualifiers, league
+    "MODE": "league",  # str: qualifiers, league
 }
