@@ -1,4 +1,6 @@
-.crt
+#Dont add
+server.crt
+secret.env
 #DS_store
 .DS_store
 # Test file
