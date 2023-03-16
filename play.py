@@ -56,7 +56,8 @@ def play(n_games, name, human=True, net_player=1) -> None:
                     i = 0
                     t = time.time()
                     while i < 3000 and (time.time() - t < 10):
-                        m.itr(actor=actor, greedy=True)
+                        # m.itr(actor=actor, greedy=True)
+                        m.itr()
                         i += 1
                     print(i)
                     norm, moves = m.norm_distr()
@@ -70,4 +71,4 @@ def play(n_games, name, human=True, net_player=1) -> None:
 
 
 if __name__ == "__main__":
-    play(n_games=5, name="7x7/LETSGO/LETSGO_hex_7x7_3", human=False, net_player=1)
+    play(n_games=5, name="7x7/LETSGO/LETSGO_hex_7x7_8", human=True, net_player=1)

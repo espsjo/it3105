@@ -165,5 +165,6 @@ if __name__ == "__main__":
         plt.title("TOPP Results")
         plt.grid()
         plt.show()
+        print(stats)
     else:
         print(stats)

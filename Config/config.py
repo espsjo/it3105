@@ -82,9 +82,9 @@ ANET_config = {
 
 TOPP_config = {
     "LOAD_PATH": "Models/TOPP",  # str: Folder to load models from
-    "GAMES": 6,  # int: Games to play against each other player (Even number)
+    "GAMES": 24,  # int: Games to play against each other player (Even number)
     "PLOT_STATS": True,  # bool: To plot the final stats or not
     "TOPP_UI": False,  # bool: Toggle UI during TOPP
-    "PROBABILISTIC": False,  # bool: If always choosing the best move or not
+    "PROBABILISTIC": True,  # bool: If always choosing the best move or not
     "GREEDY_BIAS": 0.3,  # float: Bias towards choosing the best move in probabilistic reasoning (0.3 -> Always choose best if >70% certain)
 }
