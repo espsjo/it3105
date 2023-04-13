@@ -12,7 +12,7 @@ config = {
 
 game_configs = {
     "hex": {
-        "BOARD_SIZE": 4,  # int: Specifies the board size in Hex
+        "BOARD_SIZE": 7,  # int: Specifies the board size in Hex
         "ANIMATION_SPEED": 0.1,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
         "WON_MSG": False,  # bool: Specifies if the winning player should be printed to console (UI_ON does not override)
         "DISPLAY_INDEX": True,  # bool: Specifies if the GUI should display indexes (useful for human play)

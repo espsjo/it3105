@@ -74,7 +74,7 @@ def play(n_games, name, human=True, net_player=1, player_start=1) -> None:
 if __name__ == "__main__":
     play(
         n_games=5,
-        name="4x4/LETSGO/LETSGO_hex_4x4_4",
+        name="4x4/LETSGO/LETSGO_hex_4x4_4",  # "NIM_20_1_3/LETSGO_nim_20_1_3_5", #"7x7/LETSGO/LETSGO_hex_7x7_8",
         human=True,
         net_player=1,
         player_start=1,
