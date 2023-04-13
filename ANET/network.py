@@ -51,9 +51,10 @@ class Network:
 
         model.add(
             ks.layers.Input(
-                shape=(in_size,),
+                shape=(in_size),
             )
         )
+
         for i in range(len(hidden_dense)):
             dim = hidden_dense[i]
             model.add(
@@ -86,6 +87,7 @@ class Network:
         """
         Method for building a sequential convolutional network.
         Model architecture is based on AlphaGo, but scaled down with regards to hardware and board-size.
+        Built specifically for Hex
         Parameters:
             in_size: (int) The board_size
             out_size: (int) The number of moves (board_size**2)
@@ -104,7 +106,7 @@ class Network:
         model = ks.models.Sequential()
         model.add(
             ks.layers.Input(
-                shape=(in_size, in_size, 5),
+                shape=in_size,
             )
         )
 

@@ -27,7 +27,9 @@ class ANET:
         self.EPISODES_BEFORE_LR_RED = ANET_config["EPISODES_BEFORE_LR_RED"]
         self.LR_SCALE_FACTOR = ANET_config["LR_SCALE_FACTOR"]
         self.MIN_LR = ANET_config["MIN_LR"]
-        self.BUILD_CONV = ANET_config["BUILD_CONV"]
+        self.BUILD_CONV = ANET_config["BUILD_CONV"] and (
+            ANET_config["GAME"] == "hex"  ## ONLY USE CONV FOR HEX ##
+        )
         self.LEARNING_RATE = ANET_config["LEARNING_RATE"]
         self.EPOCHS = ANET_config["EPOCHS"]
         self.BATCH_SIZE = ANET_config["BATCH_SIZE"]
@@ -38,7 +40,12 @@ class ANET:
 
         self.OUTPUT_SIZE = len(self.ALL_MOVES)
         self.BOARD_SIZE = int(np.sqrt(self.OUTPUT_SIZE))
-        self.INPUT_SIZE = self.OUTPUT_SIZE + 1
+        self.INPUT_SIZE = {
+            "hex": (self.BOARD_SIZE, self.BOARD_SIZE, 5)
+            if self.BUILD_CONV
+            else self.BOARD_SIZE**2 + 1,
+            "nim": 2,
+        }[ANET_config["GAME"]]
 
         if model_name != None:
             self.load(model_name + ".h5")
@@ -57,11 +64,11 @@ class ANET:
         network = Network(ANET_config=ANET_config)
         if self.BUILD_CONV:
             self.model = network.build_conv_model(
-                in_size=self.BOARD_SIZE, out_size=self.OUTPUT_SIZE
+                in_size=self.INPUT_SIZE, out_size=self.OUTPUT_SIZE
             )
         else:
             self.model = network.build_normal(
-                in_size=self.BOARD_SIZE, out_size=self.OUTPUT_SIZE
+                in_size=self.INPUT_SIZE, out_size=self.OUTPUT_SIZE
             )
 
     def train(self, minibatch, epnr) -> None:

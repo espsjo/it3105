@@ -12,15 +12,15 @@ config = {
 
 game_configs = {
     "hex": {
-        "BOARD_SIZE": 7,  # int: Specifies the board size in Hex
+        "BOARD_SIZE": 4,  # int: Specifies the board size in Hex
         "ANIMATION_SPEED": 0.1,  # float: Specifies the min_speed of moves in GUI. Can be slower due to machine processing
         "WON_MSG": False,  # bool: Specifies if the winning player should be printed to console (UI_ON does not override)
         "DISPLAY_INDEX": True,  # bool: Specifies if the GUI should display indexes (useful for human play)
     },
     "nim": {
-        "STONES": 10,  # int: Specifies number of stones in NIM
+        "STONES": 20,  # int: Specifies number of stones in NIM
         "MIN_STONES": 1,  # int: Specifies the min number of stones you must take each turn
-        "MAX_STONES": 4,  # int: Specifies the max number of stones you can take each turn (unless there are fewer stones left)
+        "MAX_STONES": 3,  # int: Specifies the max number of stones you can take each turn (unless there are fewer stones left)
         "WON_MSG": False,  # bool: Specifies if the winning player should be printed to console (UI_ON overrides this if True)
         "DELAY": 0,  # float: delay between moves for some reason? (UNSTABLE USE AT OWN RISK)
     },
@@ -28,8 +28,8 @@ game_configs = {
 
 MCTS_config = {
     "UCT_C": 1.3,  # float: Variable for weighting the Upper Confidence Bound for Tree
-    "MAX_TIME": 1.5,  # float: Variable for controlling how much time the algorithm is allowed to spend (seconds) (overwritten by MIN_SIMS)
-    "MIN_SIMS": 2000,  # int: How many simulations per move at minimum
+    "MAX_TIME": 0.5,  # float: Variable for controlling how much time the algorithm is allowed to spend (seconds) (overwritten by MIN_SIMS)
+    "MIN_SIMS": 500,  # int: How many simulations per move at minimum
     "KEEP_SUBTREE": True,  # bool: Specify if to keep the subtree after update
 }
 # Helpers
@@ -43,7 +43,7 @@ RLLearner_config = {
     "BUFFER_SIZE": 2048,  # int: Specify the size of the replay buffer
     "MINIBATCH_SIZE": 256,  # int: Specify the number of samples to be retrived from the buffer
     "SAVE": True,  # bool: Specify to save nets or not
-    "SAVE_INTERVAL": 50,  # int: Save the target policy at each x episodes
+    "SAVE_INTERVAL": 10,  # int: Save the target policy at each x episodes
     "SAVE_PATH": "Models/ModelCache",  # str: Path to save nets to
     "SAVE_NAME": "LETSGO"
     + (save_hex if config["GAME"] == "hex" else save_nim),  # str: Name for saved models
@@ -85,6 +85,8 @@ ANET_config = {
             "hex",  # Add other games here if nn should modify state
         ]
     ),  # bool: Specify if we should change state representation from 2 to -1
+    ##########################################################################
+    "GAME": config["GAME"],  # Retriving game for different ANET inits
     ##########################################################################
 }
 
