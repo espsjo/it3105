@@ -86,7 +86,7 @@ ANET_config = {
         ]
     ),  # bool: Specify if we should change state representation from 2 to -1
     ##########################################################################
-    "GAME": config["GAME"],  # Retriving game for different ANET inits
+    "GAME": config["GAME"],  # str: Retrieving game for different ANET inits
     ##########################################################################
 }
 
