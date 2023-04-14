@@ -1,4 +1,4 @@
-# IT3105 - AlphaGo Knock-Off
+# IT3105 - AlphaGo Knock-Off (Deep Reinforcement Learning)
 
 This project implements a simpler version of the AlphaGo/AlphaZero system from Deepmind.
 The core algorithm consists of estimating a probability distribution over all moves with Monte-Carlo Tree-Search (MCTS).
