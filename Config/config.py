@@ -29,7 +29,7 @@ game_configs = {
 MCTS_config = {
     "UCT_C": 1.3,  # float: Variable for weighting the Upper Confidence Bound for Tree
     "MAX_TIME": 0.5,  # float: Variable for controlling how much time the algorithm is allowed to spend (seconds) (overwritten by MIN_SIMS)
-    "MIN_SIMS": 500,  # int: How many simulations per move at minimum
+    "MIN_SIMS": 1000,  # int: How many simulations per move at minimum
     "KEEP_SUBTREE": True,  # bool: Specify if to keep the subtree after update
 }
 # Helpers
@@ -43,7 +43,7 @@ RLLearner_config = {
     "BUFFER_SIZE": 2048,  # int: Specify the size of the replay buffer
     "MINIBATCH_SIZE": 256,  # int: Specify the number of samples to be retrived from the buffer
     "SAVE": True,  # bool: Specify to save nets or not
-    "SAVE_INTERVAL": 10,  # int: Save the target policy at each x episodes
+    "SAVE_INTERVAL": 50,  # int: Save the target policy at each x episodes
     "SAVE_PATH": "Models/ModelCache",  # str: Path to save nets to
     "SAVE_NAME": "LETSGO"
     + (save_hex if config["GAME"] == "hex" else save_nim),  # str: Name for saved models
@@ -55,7 +55,7 @@ ANET_config = {
     ##################################################
     # Must be tuple of tuples
     "HIDDEN_LAYERS": (
-        (128, 64),
+        (128, 64, 64),
         (64, 64, 64, 64, 64),
     )  # tuple: [0] Dense layers; [1] Conv2D layers
     if config["GAME"] == "hex"
@@ -111,6 +111,6 @@ OHT_config = {
     ##   DANGER   ##
     ################
     "AUTH": secrets["AUTH"],  # str: Certificate
-    "QUALIFY": False,  # bool: To qualify or not (3 attempts left)
+    "QUALIFY": False,  # bool: To qualify or not (2 attempts left)
     "MODE": "league",  # str: qualifiers, league
 }
